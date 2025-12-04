@@ -44,7 +44,7 @@
                                     <span class="text-amber-600">📁</span>
                                     <span class="font-semibold">{{ child.name }}</span>
                                 </button>
-                                <form action="/folders/{{ child.path }}/delete" method="post" class="ml-auto" onsubmit="return confirm('Удалить пустую папку?');">
+                                <form action="/folders/{{ child.path }}/delete" method="post" class="ml-auto" onsubmit="return confirm('Удалить папку со всем содержимым?');">
                                     <button type="submit" class="text-xs text-red-500 hover:text-red-600">Удалить</button>
                                 </form>
                             </div>

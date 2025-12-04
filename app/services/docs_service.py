@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path, PurePosixPath
 from typing import Dict, Optional
 
@@ -95,10 +96,7 @@ def delete_dir(path: str) -> None:
     if not str(dir_path).startswith(str(DOCS_DIR.resolve())):
         raise ValueError("Invalid directory path")
     if dir_path.exists():
-        # only remove if empty to avoid destructive operations
-        if any(dir_path.iterdir()):
-            raise ValueError("Directory is not empty")
-        dir_path.rmdir()
+        shutil.rmtree(dir_path)
         cleanup_empty_dirs(dir_path.parent)
 
 

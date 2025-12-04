@@ -1,17 +1,20 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">{{ path }}</h3>
-    <div>
-        <a class="btn btn-sm btn-secondary" href="/docs/{{ path }}/edit">Редактировать</a>
-        <form action="/docs/{{ path }}/delete" method="post" class="d-inline" onsubmit="return confirm('Удалить документ?');">
-            <button class="btn btn-sm btn-danger" type="submit">Удалить</button>
-        </form>
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="text-sm text-slate-500">Путь: <span class="font-mono text-slate-700">{{ path }}</span></p>
+            <h1 class="text-2xl font-semibold text-slate-900 mt-1">{{ breadcrumbs[-1].name if breadcrumbs|length > 1 else path }}</h1>
+        </div>
+        <div class="flex gap-2">
+            <a href="/docs/{{ path }}/edit" class="px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Редактировать</a>
+            <form action="/docs/{{ path }}/delete" method="post" onsubmit="return confirm('Удалить документ?');">
+                <button type="submit" class="px-3 py-2 text-sm rounded-md bg-red-600 text-white font-semibold hover:bg-red-700">Удалить</button>
+            </form>
+        </div>
     </div>
-</div>
-<div class="card">
-    <div class="card-body">
-        <div class="markdown-body">{{ html_content | safe }}</div>
-    </div>
-</div>
+    <article class="prose max-w-none prose-slate prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:bg-slate-100">
+        {{ html_content | safe }}
+    </article>
 {% endblock %}

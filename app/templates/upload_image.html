@@ -1,19 +1,25 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
-<h3>Загрузка картинки</h3>
-<form action="/upload" method="post" enctype="multipart/form-data" class="mb-3">
-    <div class="mb-3">
-        <label class="form-label">Файл</label>
-        <input class="form-control" type="file" name="file" required>
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="text-sm text-slate-500">Загрузка изображения</p>
+            <h1 class="text-2xl font-semibold text-slate-900 mt-1">Добавить файл</h1>
+        </div>
     </div>
-    <button class="btn btn-primary" type="submit">Загрузить</button>
-</form>
-{% if filename %}
-<div class="alert alert-success">
-    <p class="mb-1">Файл загружен: <strong>{{ filename }}</strong></p>
-    <p class="mb-0">Markdown пример:</p>
-    <code>![описание]({{ url }})</code>
-</div>
-<img src="{{ url }}" alt="uploaded image" class="img-fluid mt-3" />
-{% endif %}
+
+    <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-3">
+        <label class="block text-sm font-semibold text-slate-700" for="file">Файл</label>
+        <input type="file" name="file" id="file" required class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+        <button type="submit" class="px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Загрузить</button>
+    </form>
+
+    {% if url %}
+        <div class="mt-6 p-4 rounded-md border border-emerald-200 bg-emerald-50">
+            <p class="text-sm text-emerald-700">Файл загружен: <a class="text-emerald-800 font-semibold hover:underline" href="{{ url }}" target="_blank" rel="noreferrer">{{ filename }}</a></p>
+            <p class="text-sm text-slate-700 mt-2">Markdown:</p>
+            <pre class="mt-1 rounded-md bg-slate-900 text-slate-100 px-3 py-2 text-sm overflow-x-auto">![описание]({{ url }})</pre>
+        </div>
+    {% endif %}
 {% endblock %}

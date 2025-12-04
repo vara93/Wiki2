@@ -1,9 +1,28 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
-<div class="card">
-    <div class="card-body">
-        <h3>Добро пожаловать!</h3>
-        <p>Выберите документ слева или создайте новый.</p>
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex flex-col gap-4">
+        <div>
+            <h1 class="text-2xl font-semibold text-slate-900">Добро пожаловать в Internal Wiki</h1>
+            <p class="text-slate-600 mt-2">Используйте дерево слева, чтобы открыть или создать документы, либо воспользуйтесь поиском.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-lg border border-slate-200 bg-slate-50">
+                <h2 class="text-lg font-semibold text-slate-800">Быстрые действия</h2>
+                <ul class="mt-2 space-y-2 text-sm text-slate-700">
+                    <li>• Создайте новый документ через кнопку «Новый документ».</li>
+                    <li>• Загрузите изображения и вставляйте их в Markdown.</li>
+                    <li>• Используйте предпросмотр Markdown при редактировании.</li>
+                    <li>• Ищите по содержимому и заголовкам через поиск.</li>
+                </ul>
+            </div>
+            <div class="p-4 rounded-lg border border-slate-200 bg-white">
+                <h2 class="text-lg font-semibold text-slate-800">Где лежат данные</h2>
+                <p class="text-sm text-slate-700 mt-2">Документы хранятся как <code>.md</code> файлы в <code>/data/docs</code>,
+                    загруженные изображения — в <code>/data/uploads</code>. Логический путь документа совпадает со структурой
+                    директорий (пример: <span class="font-mono">infra/mail/intro</span>).</p>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock %}

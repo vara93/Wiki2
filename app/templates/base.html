@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Wiki</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        .glass-card { background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9)); box-shadow: 0 20px 60px -24px rgba(15,23,42,0.2); backdrop-filter: blur(6px); }
+        .prose :where(pre):not(:where([class~="not-prose"] *)) { overflow-x: auto; }
+        .editor-toolbar { border: 1px solid rgb(226 232 240); background: linear-gradient(135deg, rgba(248,250,252,0.95), rgba(236,241,247,0.95)); border-radius: 14px; padding: 8px 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 10px 30px -15px rgba(15, 23, 42, 0.25); }
+        .editor-toolbar button, .editor-toolbar select { height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid rgb(226 232 240); background: white; color: rgb(51 65 85); font-weight: 600; transition: all 0.15s ease; box-shadow: 0 1px 1px rgba(15,23,42,0.05); }
+        .editor-toolbar button:hover, .editor-toolbar select:hover { background: rgb(241 245 249); border-color: rgb(203 213 225); }
+        .editor-toolbar button:active { transform: translateY(1px); }
+        .sidebar-link { display: inline-flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 10px; font-weight: 600; border: 1px solid transparent; transition: all .15s ease; }
+        .sidebar-link:hover { border-color: rgb(226 232 240); background: rgb(248 250 252); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 text-slate-800">
+    {% macro render_tree(node) %}
+        {% if node.children %}
+            <ul class="space-y-2 pl-2 border-l border-slate-200">
+                {% for child in node.children %}
+                    {% if child.type == 'dir' %}
+                        <li>
+                            <details class="group" open>
+                                <summary class="flex items-center justify-between gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
+                                    <div class="flex items-center gap-2 flex-1">
+                                        <span class="text-amber-500">📁</span>
+                                        <span class="font-semibold break-words">{{ child.name }}</span>
+                                    </div>
+                                    <form action="/folders/{{ child.path }}/delete" method="post" class="inline-flex" onsubmit="return confirm('Удалить пустую папку?');">
+                                        <button type="submit" title="Удалить папку" class="hidden group-open:inline-flex items-center text-xs text-red-500 hover:text-red-600">🗑</button>
+                                    </form>
+                                </summary>
+                                <div class="mt-2 ml-1">
+                                    {{ render_tree(child) }}
+                                </div>
+                            </details>
+                        </li>
+                    {% else %}
+                        <li class="flex items-center gap-2 text-sm text-slate-700 hover:text-blue-600">
+                            <span class="text-slate-400">📄</span>
+                            <a class="hover:underline break-words" href="/docs/{{ child.path }}">{{ child.name }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-sm text-slate-500">Документов пока нет.</p>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_breadcrumbs(items) %}
+        {% if items %}
+            <nav class="mb-4 text-sm text-slate-500" aria-label="Breadcrumb">
+                <ol class="flex flex-wrap items-center gap-2">
+                    {% for crumb in items %}
+                        <li class="flex items-center gap-2">
+                            {% if not loop.first %}<span class="text-slate-300">/</span>{% endif %}
+                            <a href="{{ crumb.url }}" class="hover:text-blue-600 font-medium">{{ crumb.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </nav>
+        {% endif %}
+    {% endmacro %}
+
+    <div class="min-h-screen">
+        <header class="bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+            <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-lg">IW</div>
+                    <div>
+                        <p class="text-xl font-semibold">Internal Wiki</p>
+                        <p class="text-sm text-slate-500">Корпоративная база знаний</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-3 text-sm text-slate-500">
+                    <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200">FastAPI</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200">Markdown</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200">Tailwind</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
+            <aside class="w-72 glass-card border border-slate-200 rounded-2xl p-5 flex flex-col gap-5">
+                <div class="flex flex-col gap-2">
+                    <a href="/docs" class="sidebar-link bg-slate-900 text-white hover:bg-slate-800 hover:text-white"><span>🏠</span><span>Главная</span></a>
+                    <a href="/docs/new" class="sidebar-link bg-blue-600 text-white hover:bg-blue-700"><span>➕</span><span>Новый документ</span></a>
+                    <a href="/upload" class="sidebar-link text-slate-800 bg-white hover:text-slate-900"><span>⬆️</span><span>Загрузить картинку</span></a>
+                </div>
+                <form action="/search" method="get" class="flex">
+                    <input type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск..." class="w-full rounded-l-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <button type="submit" class="rounded-r-xl bg-blue-600 text-white px-3 py-2 text-sm font-semibold hover:bg-blue-700">Искать</button>
+                </form>
+                <div class="h-px bg-slate-200"></div>
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Документы</p>
+                    {% if docs_tree %}
+                        {{ render_tree(docs_tree) }}
+                    {% else %}
+                        <p class="text-sm text-slate-500">Нет документов</p>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <section class="flex-1 glass-card border border-slate-200 rounded-2xl p-6">
+                {% if message %}
+                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ message }}</div>
+                {% endif %}
+                {% if error %}
+                    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function debounce(fn, delay) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        function attachPreview(textareaId, previewId) {
+            const textarea = document.getElementById(textareaId);
+            const preview = document.getElementById(previewId);
+            if (!textarea || !preview) return;
+
+            const render = debounce(async () => {
+                const content = textarea.value;
+                try {
+                    const response = await fetch('/render_markdown', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content }),
+                    });
+                    const data = await response.json();
+                    preview.innerHTML = data.html;
+                    if (window.hljs) {
+                        preview.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+                    }
+                } catch (err) {
+                    preview.innerHTML = '<p class="text-red-500">Ошибка предпросмотра</p>';
+                }
+            }, 200);
+
+            textarea.addEventListener('input', render);
+            render();
+        }
+
+        function setupToolbar(toolbarId, textareaId) {
+            const toolbar = document.getElementById(toolbarId);
+            const textarea = document.getElementById(textareaId);
+            if (!toolbar || !textarea) return;
+
+            function wrapSelection(prefix, suffix = prefix) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
+                const selected = value.substring(start, end) || '';
+                const before = value.substring(0, start);
+                const after = value.substring(end);
+                const insert = `${prefix}${selected || 'текст'}${suffix}`;
+                textarea.value = `${before}${insert}${after}`;
+                const caretStart = before.length + prefix.length;
+                const caretEnd = caretStart + (selected || 'текст').length;
+                textarea.focus();
+                textarea.setSelectionRange(caretStart, caretEnd);
+                textarea.dispatchEvent(new Event('input'));
+            }
+
+            function insertLine(prefix, placeholder = 'элемент') {
+                const start = textarea.selectionStart;
+                const value = textarea.value;
+                const before = value.substring(0, start);
+                const after = value.substring(start);
+                const line = `${prefix}${placeholder}`;
+                textarea.value = `${before}${line}\n${after}`;
+                textarea.focus();
+                const caret = before.length + prefix.length;
+                textarea.setSelectionRange(caret, caret + placeholder.length);
+                textarea.dispatchEvent(new Event('input'));
+            }
+
+            const actions = {
+                bold: () => wrapSelection('**', '**'),
+                italic: () => wrapSelection('*', '*'),
+                strike: () => wrapSelection('~~', '~~'),
+                code: () => wrapSelection('`', '`'),
+                blockcode: () => wrapSelection('\n```\n', '\n```\n'),
+                quote: () => insertLine('> ', 'цитата'),
+                ul: () => insertLine('- ', 'элемент списка'),
+                ol: () => insertLine('1. ', 'элемент списка'),
+                link: () => wrapSelection('[', '](https://example.com)'),
+                image: () => wrapSelection('![описание](', ')'),
+                table: () => {
+                    const tpl = '| Столбец 1 | Столбец 2 |\n| --- | --- |\n| Значение | Значение |\n';
+                    wrapSelection('\n' + tpl + '\n', '');
+                },
+                heading: (level) => insertLine('#'.repeat(level) + ' ', `Заголовок ${level}`),
+                checklist: () => insertLine('- [ ] ', 'задача'),
+                emoji: () => wrapSelection('😊 ', ''),
+                hr: () => insertLine('\n---\n', ''),
+            };
+
+            toolbar.querySelectorAll('[data-action]')?.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const action = button.dataset.action;
+                    if (action === 'heading') {
+                        const level = Number(button.dataset.level || 2);
+                        actions.heading(level);
+                        return;
+                    }
+                    const fn = actions[action];
+                    if (fn) fn();
+                });
+            });
+
+            const blockSelect = toolbar.querySelector('select[data-block-picker]');
+            if (blockSelect) {
+                blockSelect.addEventListener('change', () => {
+                    const val = blockSelect.value;
+                    if (val === 'p') insertLine('', '');
+                    if (val === 'h2') actions.heading(2);
+                    if (val === 'h3') actions.heading(3);
+                    if (val === 'quote') actions.quote();
+                    if (val === 'code') actions.blockcode();
+                    blockSelect.selectedIndex = 0;
+                });
+            }
+        }
+
+        function setupUnsavedGuard() {
+            const guardedForms = document.querySelectorAll('form[data-guard-unsaved="true"]');
+            if (!guardedForms.length) return;
+
+            let dirty = false;
+            const resetDirty = () => { dirty = false; };
+
+            guardedForms.forEach(form => {
+                form.querySelectorAll('textarea, input, select').forEach(el => {
+                    el.addEventListener('input', () => { dirty = true; });
+                    el.addEventListener('change', () => { dirty = true; });
+                });
+                form.addEventListener('submit', resetDirty);
+            });
+
+            window.addEventListener('beforeunload', (e) => {
+                if (!dirty) return;
+                e.preventDefault();
+                e.returnValue = '';
+            });
+
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (!dirty || link.target === '_blank' || link.getAttribute('href')?.startsWith('#')) return;
+                    if (confirm('Есть несохраненные изменения. Перейти без сохранения?')) {
+                        dirty = false;
+                        return;
+                    }
+                    e.preventDefault();
+                });
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupUnsavedGuard();
+        });
+
+        window.attachPreview = attachPreview;
+        window.setupToolbar = setupToolbar;
+    </script>
+</body>
+</html>

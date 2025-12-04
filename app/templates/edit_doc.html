@@ -2,9 +2,9 @@
 {% block content %}
 <div class="flex flex-col gap-4">
     {{ render_breadcrumbs(breadcrumbs) }}
-    <div class="flex items-start justify-between">
+    <div class="flex items-start justify-between flex-wrap gap-3">
         <div>
-            <p class="text-sm text-slate-500">Редактирование</p>
+            <p class="text-sm text-slate-500">Редактирование документа</p>
             <h1 class="text-xl font-semibold text-slate-900">{{ path }}</h1>
             {% if info %}<p class="text-sm text-amber-600 mt-1">{{ info }}</p>{% endif %}
         </div>
@@ -17,8 +17,8 @@
     </div>
 
     <form action="/docs/{{ path }}/edit" method="post" data-guard-unsaved="true" class="flex flex-col gap-3">
-        <div class="flex items-center justify-between">
-            <div class="editor-toolbar flex flex-wrap items-center gap-2">
+        <div class="editor-toolbar" id="editor-toolbar">
+            <div class="toolbar-group">
                 <select data-block-picker class="text-sm">
                     <option>Блок</option>
                     <option value="h2">Заголовок H2</option>
@@ -26,29 +26,39 @@
                     <option value="quote">Цитата</option>
                     <option value="code">Код</option>
                 </select>
-                <button data-action="bold">B</button>
-                <button data-action="italic"><em>I</em></button>
-                <button data-action="strike"><s>S</s></button>
-                <button data-action="heading" data-level="2">H2</button>
-                <button data-action="heading" data-level="3">H3</button>
-                <button data-action="ul">• Список</button>
-                <button data-action="ol">1. Список</button>
-                <button data-action="quote">“” Цитата</button>
-                <button data-action="code">` Код`</button>
-                <button data-action="blockcode">``` Блок ```</button>
-                <button data-action="checklist">☑ Чеклист</button>
-                <button data-action="table">Таблица</button>
-                <button data-action="link">Ссылка</button>
-                <button data-action="image">Картинка</button>
-                <button data-action="hr">—</button>
-                <a href="/upload" class="toolbar-btn">⬆️ Медиа</a>
             </div>
-            <div class="flex items-center gap-3 text-sm text-slate-600">
-                <label class="flex items-center gap-2">
+            <div class="toolbar-group">
+                <button data-action="bold" title="Жирный">B</button>
+                <button data-action="italic" title="Курсив"><em>I</em></button>
+                <button data-action="strike" title="Зачеркнуть"><s>S</s></button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="heading" data-level="2" title="Заголовок H2">H2</button>
+                <button data-action="heading" data-level="3" title="Заголовок H3">H3</button>
+                <button data-action="quote" title="Цитата">“”</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="ul" title="Маркированный список">•</button>
+                <button data-action="ol" title="Нумерованный список">1.</button>
+                <button data-action="checklist" title="Чеклист">☑</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="code" title="Код">`</button>
+                <button data-action="blockcode" title="Блок кода">{ }</button>
+                <button data-action="table" title="Таблица">▦</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="link" title="Ссылка">🔗</button>
+                <button data-action="image" title="Картинка">🖼</button>
+                <button data-action="hr" title="Разделитель">—</button>
+                <a href="/upload" class="toolbar-btn" title="Медиа">⬆️</a>
+            </div>
+            <div class="toolbar-group ml-auto">
+                <label class="flex items-center gap-2 text-sm text-slate-600">
                     <input id="auto-preview" type="checkbox" class="rounded border-slate-300" checked>
                     Автообновление
                 </label>
-                <button id="refresh-preview" class="action-link">Обновить предпросмотр</button>
+                <button id="refresh-preview" class="action-link px-3 py-2">Обновить</button>
                 <button type="submit" class="action-link bg-slate-900 text-white border-slate-900">💾 Сохранить</button>
             </div>
         </div>

@@ -8,9 +8,11 @@
             <h1 class="text-xl font-semibold text-slate-900">Результаты</h1>
             <p class="text-sm text-slate-500 mt-1">{{ results | length }} найдено</p>
         </div>
-        <form action="/search" method="get" class="flex items-center search-pill gap-2">
-            <input type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по названию и содержимому..." class="flex-1 bg-transparent focus:outline-none text-sm" />
-            <button type="submit" class="text-sm font-semibold text-slate-700 hover:text-slate-900">Искать</button>
+        <form action="/search" method="get" class="w-full max-w-md">
+            <div class="search-control">
+                <input type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по названию и содержимому..." class="search-input" />
+                <button type="submit" class="search-button">Искать</button>
+            </div>
         </form>
     </div>
 

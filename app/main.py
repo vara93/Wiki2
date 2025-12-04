@@ -190,6 +190,7 @@ async def view_doc(path: str, request: Request):
                 "request": request,
                 "docs_tree": docs_tree,
                 "path": normalized,
+                "title": normalized.split("/")[-1],
                 "html_content": None,
                 "raw_content": None,
                 "breadcrumbs": breadcrumbs,
@@ -197,12 +198,14 @@ async def view_doc(path: str, request: Request):
             },
         )
     html_content = render_markdown_content(content)
+    title = docs_service.get_title_from_content(content, fallback=normalized.split("/")[-1])
     return templates.TemplateResponse(
         "view_doc.html",
         {
             "request": request,
             "docs_tree": docs_tree,
             "path": normalized,
+            "title": title,
             "html_content": html_content,
             "raw_content": content,
             "breadcrumbs": breadcrumbs,

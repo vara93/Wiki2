@@ -1,74 +1,75 @@
 {% extends "base.html" %}
-
 {% block content %}
-    {{ render_breadcrumbs(breadcrumbs) }}
-    <div class="flex items-start justify-between mb-5">
+<div class="flex flex-col gap-4">
+    {{ breadcrumbs(breadcrumbs) }}
+    <div class="flex items-start justify-between">
         <div>
-            <p class="text-sm text-slate-500">Редактирование: <span class="font-mono text-slate-700">{{ path }}</span></p>
-            <h1 class="text-3xl font-semibold text-slate-900 mt-1">Редактор Markdown</h1>
+            <p class="text-sm text-slate-500">Редактирование</p>
+            <h1 class="text-xl font-semibold text-slate-900">{{ path }}</h1>
+            {% if info %}<p class="text-sm text-amber-600 mt-1">{{ info }}</p>{% endif %}
         </div>
         <div class="flex gap-2">
-            <a href="/docs/{{ path }}" class="px-3 py-2 text-sm rounded-lg bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200">Отмена</a>
+            <a href="/docs/{{ path }}" class="action-link">↩ Вернуться</a>
             <form action="/docs/{{ path }}/delete" method="post" onsubmit="return confirm('Удалить документ?');">
-                <button type="submit" class="px-3 py-2 text-sm rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700">Удалить</button>
+                <button type="submit" class="action-link text-red-600">🗑 Удалить</button>
             </form>
         </div>
     </div>
 
-    {% if info %}
-        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{{ info }}</div>
-    {% endif %}
-
-    <form action="/docs/{{ path }}/edit" method="post" class="grid grid-cols-1 xl:grid-cols-2 gap-6" data-guard-unsaved="true">
-        <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-                <label for="content" class="text-sm font-semibold text-slate-700">Markdown</label>
-                <div id="toolbar-edit" class="editor-toolbar flex flex-wrap items-center gap-2">
-                    <select data-block-picker class="text-sm font-semibold">
-                        <option value="p">Текст</option>
-                        <option value="h2">Заголовок H2</option>
-                        <option value="h3">Заголовок H3</option>
-                        <option value="quote">Цитата</option>
-                        <option value="code">Блок кода</option>
-                    </select>
-                    <button type="button" data-action="bold"><strong>B</strong></button>
-                    <button type="button" data-action="italic"><em>I</em></button>
-                    <button type="button" data-action="strike" title="Зачеркнуть">S</button>
-                    <button type="button" data-action="heading" data-level="2" title="H2">H2</button>
-                    <button type="button" data-action="heading" data-level="3" title="H3">H3</button>
-                    <button type="button" data-action="quote" title="Цитата">❝</button>
-                    <button type="button" data-action="ul" title="Маркированный список">• • •</button>
-                    <button type="button" data-action="ol" title="Нумерованный список">1.</button>
-                    <button type="button" data-action="checklist" title="Чеклист">☑️</button>
-                    <button type="button" data-action="link" title="Ссылка">🔗</button>
-                    <button type="button" data-action="image" title="Картинка">🖼️</button>
-                    <button type="button" data-action="table" title="Таблица">╬</button>
-                    <button type="button" data-action="code" title="Инлайн код">`</button>
-                    <button type="button" data-action="blockcode" title="Блок кода">{ }</button>
-                    <button type="button" data-action="emoji" title="Эмодзи">😊</button>
-                    <button type="button" data-action="hr" title="Разделитель">---</button>
-                </div>
+    <form action="/docs/{{ path }}/edit" method="post" data-guard-unsaved="true" class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+            <div class="editor-toolbar flex flex-wrap items-center gap-2">
+                <select data-block-picker class="text-sm">
+                    <option>Блок</option>
+                    <option value="h2">Заголовок H2</option>
+                    <option value="h3">Заголовок H3</option>
+                    <option value="quote">Цитата</option>
+                    <option value="code">Код</option>
+                </select>
+                <button data-action="bold">B</button>
+                <button data-action="italic"><em>I</em></button>
+                <button data-action="strike"><s>S</s></button>
+                <button data-action="heading" data-level="2">H2</button>
+                <button data-action="heading" data-level="3">H3</button>
+                <button data-action="ul">• Список</button>
+                <button data-action="ol">1. Список</button>
+                <button data-action="quote">“” Цитата</button>
+                <button data-action="code">` Код`</button>
+                <button data-action="blockcode">``` Блок ```</button>
+                <button data-action="checklist">☑ Чеклист</button>
+                <button data-action="table">Таблица</button>
+                <button data-action="link">Ссылка</button>
+                <button data-action="image">Картинка</button>
+                <button data-action="hr">—</button>
+                <a href="/upload" class="toolbar-btn">⬆️ Медиа</a>
             </div>
-            <textarea id="content" name="content" rows="20" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner bg-slate-50" required>{{ content }}</textarea>
-            <div class="flex gap-2 flex-wrap">
-                <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Сохранить</button>
-                <a href="/docs/{{ path }}" class="px-4 py-2 text-sm rounded-lg bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200">Отмена</a>
-                <a href="/upload" class="px-4 py-2 text-sm rounded-lg bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200">Вставить картинку</a>
+            <div class="flex items-center gap-3 text-sm text-slate-600">
+                <label class="flex items-center gap-2">
+                    <input id="auto-preview" type="checkbox" class="rounded border-slate-300" checked>
+                    Автообновление
+                </label>
+                <button id="refresh-preview" class="action-link">Обновить предпросмотр</button>
+                <button type="submit" class="action-link bg-slate-900 text-white border-slate-900">💾 Сохранить</button>
             </div>
         </div>
-        <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-semibold text-slate-700">Предпросмотр</p>
-                <p class="text-xs text-slate-500">Автообновление</p>
+
+        <div class="editor-grid">
+            <div>
+                <label for="content" class="sr-only">Markdown</label>
+                <textarea id="content" name="content" class="editor-input" required>{{ content }}</textarea>
             </div>
-            <div id="preview" class="min-h-[280px] max-h-[70vh] rounded-xl border border-slate-200 bg-white p-4 prose max-w-none prose-slate break-words whitespace-pre-wrap overflow-auto shadow-inner"></div>
+            <div class="preview-pane" id="preview"></div>
         </div>
     </form>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            attachPreview('content', 'preview');
-            setupToolbar('toolbar-edit', 'content');
-        });
-    </script>
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.WikiUI) {
+            WikiUI.initToolbar('editor-toolbar', 'content');
+            WikiUI.initPreview({ textareaId: 'content', previewId: 'preview', autoCheckboxId: 'auto-preview', refreshButtonId: 'refresh-preview' });
+        }
+    });
+</script>
 {% endblock %}

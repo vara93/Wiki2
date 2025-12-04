@@ -1,31 +1,40 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <div class="flex flex-col gap-6">
-        <div class="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-blue-50 p-6 shadow-sm">
-            <p class="text-sm uppercase tracking-wide text-blue-700 font-semibold mb-1">Internal Wiki</p>
-            <h1 class="text-3xl font-semibold text-slate-900 mb-2">Добро пожаловать в корпоративную базу знаний</h1>
-            <p class="text-slate-600 max-w-3xl">Используйте дерево слева, чтобы открыть нужный раздел. Создавайте новые страницы, загружайте изображения и редактируйте Markdown с живым предпросмотром.</p>
-            <div class="mt-4 flex flex-wrap gap-3">
-                <a href="/docs/new" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Новый документ</a>
-                <a href="/upload" class="px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold hover:bg-black">Загрузить изображение</a>
-                <a href="/search" class="px-4 py-2 rounded-lg bg-white text-slate-800 font-semibold border border-slate-200 hover:bg-slate-100">Поиск</a>
-            </div>
-        </div>
+<div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
+        <p class="text-sm text-slate-500">Главная</p>
+        <h1 class="text-2xl font-semibold text-slate-900">Добро пожаловать в Internal Wiki</h1>
+        <p class="text-sm text-slate-600 max-w-3xl">Лаконичное пространство для вашей команды: быстрый просмотр, удобное редактирование Markdown и четкая структура документов.</p>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-sm font-semibold text-slate-800 mb-1">Навигация</p>
-                <p class="text-sm text-slate-600">Дерево слева показывает все разделы и страницы. Кликните по документу, чтобы открыть его.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 border border-slate-200 rounded-xl bg-slate-50">
+            <div class="flex items-center justify-between mb-2">
+                <p class="font-semibold text-slate-900">Навигация</p>
+                <span class="text-slate-400">↗</span>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-sm font-semibold text-slate-800 mb-1">Редактор</p>
-                <p class="text-sm text-slate-600">Редактируйте Markdown, используйте панель форматирования и живой предпросмотр. Несохранённые изменения защищены предупреждением.</p>
+            <p class="text-sm text-slate-600">Используйте левое дерево документов, чтобы быстро переходить между разделами и страницами.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-xl bg-slate-50">
+            <div class="flex items-center justify-between mb-2">
+                <p class="font-semibold text-slate-900">Редактор</p>
+                <span class="text-slate-400">⌘</span>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-sm font-semibold text-slate-800 mb-1">Медиа</p>
-                <p class="text-sm text-slate-600">Загружайте изображения и вставляйте их в текст через готовую Markdown-ссылку.</p>
+            <p class="text-sm text-slate-600">Моноширинный ввод, панель форматирования и живой предпросмотр помогают писать аккуратный Markdown.</p>
+        </div>
+        <div class="p-4 border border-slate-200 rounded-xl bg-slate-50">
+            <div class="flex items-center justify-between mb-2">
+                <p class="font-semibold text-slate-900">Медиа</p>
+                <span class="text-slate-400">🖼</span>
             </div>
+            <p class="text-sm text-slate-600">Загружайте изображения и сразу получайте готовую Markdown-ссылку для вставки.</p>
         </div>
     </div>
+
+    <div class="flex flex-wrap gap-3">
+        <a href="/docs/new" class="action-link bg-slate-900 text-white border-slate-900">➕ Новый документ</a>
+        <a href="/upload" class="action-link">⬆️ Загрузить изображение</a>
+        <a href="/search" class="action-link">🔎 Поиск</a>
+    </div>
+</div>
 {% endblock %}

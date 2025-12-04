@@ -16,7 +16,7 @@
     </div>
 
     {% if html_content %}
-        <article class="prose max-w-none prose-slate prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:bg-slate-100">
+        <article class="prose max-w-none prose-slate prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:bg-slate-100 break-words whitespace-pre-wrap">
             {{ html_content | safe }}
         </article>
     {% else %}

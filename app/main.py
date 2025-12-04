@@ -186,21 +186,11 @@ async def edit_doc_form(path: str, request: Request):
         return RedirectResponse(url=f"/docs/{normalized}/edit", status_code=307)
     docs_tree = _get_docs_tree()
     content = docs_service.read_doc(normalized)
-    if content is None:
-        return templates.TemplateResponse(
-            "view_doc.html",
-            {
-                "request": request,
-                "docs_tree": docs_tree,
-                "path": normalized,
-                "html_content": None,
-                "raw_content": None,
-                "breadcrumbs": build_breadcrumbs(normalized),
-                "error": "Документ не найден. Создайте его через форму ниже.",
-            },
-            status_code=404,
-        )
     breadcrumbs = build_breadcrumbs(normalized)
+    info = None
+    if content is None:
+        content = ""
+        info = "Документ не найден — файл будет создан после сохранения."
     return templates.TemplateResponse(
         "edit_doc.html",
         {
@@ -209,6 +199,7 @@ async def edit_doc_form(path: str, request: Request):
             "path": normalized,
             "content": content,
             "breadcrumbs": breadcrumbs,
+            "info": info,
         },
     )
 

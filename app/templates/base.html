@@ -15,6 +15,9 @@
         body { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
+        .prose :where(pre):not(:where([class~="not-prose"] *)) {
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -27,7 +30,7 @@
                             <details class="group" open>
                                 <summary class="flex items-center justify-between gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
                                     <span>📂</span>
-                                    <span class="font-semibold flex-1">{{ child.name }}</span>
+                                    <span class="font-semibold flex-1 break-words">{{ child.name }}</span>
                                     <form action="/folders/{{ child.path }}/delete" method="post" class="inline-flex" onsubmit="return confirm('Удалить пустую папку?');">
                                         <button type="submit" title="Удалить папку" class="hidden group-open:inline-flex items-center text-xs text-red-500 hover:text-red-600">🗑</button>
                                     </form>
@@ -40,7 +43,7 @@
                     {% else %}
                         <li class="flex items-center gap-2 text-sm text-slate-700 hover:text-blue-600">
                             <span>📄</span>
-                            <a class="hover:underline" href="/docs/{{ child.path }}">{{ child.name }}</a>
+                            <a class="hover:underline break-words" href="/docs/{{ child.path }}">{{ child.name }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
@@ -209,6 +212,43 @@
                 });
             });
         }
+
+        function setupUnsavedGuard() {
+            const guardedForms = document.querySelectorAll('form[data-guard-unsaved="true"]');
+            if (!guardedForms.length) return;
+
+            let dirty = false;
+            const resetDirty = () => { dirty = false; };
+
+            guardedForms.forEach(form => {
+                form.querySelectorAll('textarea, input, select').forEach(el => {
+                    el.addEventListener('input', () => { dirty = true; });
+                    el.addEventListener('change', () => { dirty = true; });
+                });
+                form.addEventListener('submit', resetDirty);
+            });
+
+            window.addEventListener('beforeunload', (e) => {
+                if (!dirty) return;
+                e.preventDefault();
+                e.returnValue = '';
+            });
+
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (!dirty || link.target === '_blank' || link.getAttribute('href')?.startsWith('#')) return;
+                    if (confirm('Есть несохраненные изменения. Перейти без сохранения?')) {
+                        dirty = false;
+                        return;
+                    }
+                    e.preventDefault();
+                });
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupUnsavedGuard();
+        });
 
         window.attachPreview = attachPreview;
         window.setupToolbar = setupToolbar;

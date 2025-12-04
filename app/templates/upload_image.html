@@ -13,7 +13,10 @@
         <label class="block text-sm font-semibold text-slate-700" for="file">Файл</label>
         <input type="file" name="file" id="file" required class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
         <button type="submit" class="px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Загрузить</button>
-        <p class="text-xs text-slate-500">Файлы сохраняются в <code class="font-mono">/data/uploads</code>. Используйте путь <code class="font-mono">/uploads/&lt;filename&gt;</code> в Markdown.</p>
+        <div class="text-xs text-slate-500 space-y-1">
+            <p>Файлы сохраняются в <code class="font-mono">/data/uploads</code> и доступны по URL <code class="font-mono">/uploads/&lt;filename&gt;</code>.</p>
+            <p>Скопируйте готовую Markdown-строку и вставьте её в текст документа.</p>
+        </div>
     </form>
 
     {% if url %}

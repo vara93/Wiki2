@@ -1,60 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {{ render_breadcrumbs(breadcrumbs) }}
     <div class="flex flex-col gap-6">
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <p class="text-sm uppercase tracking-wide text-blue-700 font-semibold">Главная страница</p>
-                <h1 class="text-3xl font-bold text-slate-900 mt-1">Internal Wiki</h1>
-                <p class="text-slate-600 mt-2 max-w-2xl">Храните внутренние знания в Markdown, редактируйте их в удобном редакторе с предпросмотром и быстрым доступом к изображениям.</p>
-                <div class="flex gap-3 mt-4 flex-wrap">
-                    <a href="/docs/new" class="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold shadow hover:bg-blue-700">Создать документ</a>
-                    <a href="/upload" class="px-4 py-2 rounded-md bg-white text-slate-800 font-semibold border border-slate-200 hover:bg-slate-50">Загрузить картинку</a>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 text-sm text-slate-700 w-full md:w-auto">
-                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
-                    <p class="text-xs uppercase text-slate-500">Документы</p>
-                    <p class="text-xl font-bold text-slate-900">Markdown</p>
-                </div>
-                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
-                    <p class="text-xs uppercase text-slate-500">Предпросмотр</p>
-                    <p class="text-xl font-bold text-slate-900">Live</p>
-                </div>
-                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
-                    <p class="text-xs uppercase text-slate-500">Поиск</p>
-                    <p class="text-xl font-bold text-slate-900">Full-text</p>
-                </div>
-                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
-                    <p class="text-xs uppercase text-slate-500">Файлы</p>
-                    <p class="text-xl font-bold text-slate-900">Uploads</p>
-                </div>
+        <div class="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 via-white to-blue-50 p-6 shadow-sm">
+            <p class="text-sm uppercase tracking-wide text-blue-700 font-semibold mb-1">Internal Wiki</p>
+            <h1 class="text-3xl font-semibold text-slate-900 mb-2">Добро пожаловать в корпоративную базу знаний</h1>
+            <p class="text-slate-600 max-w-3xl">Используйте дерево слева, чтобы открыть нужный раздел. Создавайте новые страницы, загружайте изображения и редактируйте Markdown с живым предпросмотром.</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <a href="/docs/new" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Новый документ</a>
+                <a href="/upload" class="px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold hover:bg-black">Загрузить изображение</a>
+                <a href="/search" class="px-4 py-2 rounded-lg bg-white text-slate-800 font-semibold border border-slate-200 hover:bg-slate-100">Поиск</a>
             </div>
         </div>
 
-        <div class="grid lg:grid-cols-3 gap-4">
-            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
-                <h2 class="text-lg font-semibold text-slate-800">Быстрые действия</h2>
-                <ul class="mt-1 space-y-2 text-sm text-slate-700">
-                    <li>• Открывайте дерево слева для навигации по разделам.</li>
-                    <li>• Создавайте черновики и сохраняйте их прямо из редактора.</li>
-                    <li>• Используйте панель форматирования для заголовков, списков и ссылок.</li>
-                    <li>• Вставляйте изображения из раздела «Загрузить картинку».</li>
-                </ul>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p class="text-sm font-semibold text-slate-800 mb-1">Навигация</p>
+                <p class="text-sm text-slate-600">Дерево слева показывает все разделы и страницы. Кликните по документу, чтобы открыть его.</p>
             </div>
-            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
-                <h2 class="text-lg font-semibold text-slate-800">Поиск и структура</h2>
-                <p class="text-sm text-slate-700">Поиск проходит по именам файлов, заголовкам и тексту. Структура каталогов в <code>/data/docs</code> отображается как разделы.</p>
-                <p class="text-sm text-slate-700">Путь <span class="font-mono">infra/mail/intro</span> превратится в файл <span class="font-mono">/data/docs/infra/mail/intro.md</span>.</p>
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p class="text-sm font-semibold text-slate-800 mb-1">Редактор</p>
+                <p class="text-sm text-slate-600">Редактируйте Markdown, используйте панель форматирования и живой предпросмотр. Несохранённые изменения защищены предупреждением.</p>
             </div>
-            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
-                <h2 class="text-lg font-semibold text-slate-800">Советы</h2>
-                <ul class="mt-1 space-y-2 text-sm text-slate-700">
-                    <li>• Используйте предпросмотр, чтобы проверить вёрстку перед сохранением.</li>
-                    <li>• Разбивайте документы по папкам, чтобы меню слева оставалось чистым.</li>
-                    <li>• Для кода применяйте блоки ``` и подсветку с highlight.js.</li>
-                </ul>
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p class="text-sm font-semibold text-slate-800 mb-1">Медиа</p>
+                <p class="text-sm text-slate-600">Загружайте изображения и вставляйте их в текст через готовую Markdown-ссылку.</p>
             </div>
         </div>
     </div>

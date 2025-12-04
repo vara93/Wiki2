@@ -143,6 +143,38 @@ async def create_doc(
     return RedirectResponse(url=f"/docs/{normalized_path}", status_code=303)
 
 
+@app.get("/docs/{path:path}/edit", response_class=HTMLResponse)
+async def edit_doc_form(path: str, request: Request):
+    normalized = _normalize_or_400(path)
+    if normalized != path:
+        return RedirectResponse(url=f"/docs/{normalized}/edit", status_code=307)
+    docs_tree = _get_docs_tree()
+    content = docs_service.read_doc(normalized)
+    breadcrumbs = build_breadcrumbs(normalized)
+    info = None
+    if content is None:
+        content = ""
+        info = "Документ не найден — файл будет создан после сохранения."
+    return templates.TemplateResponse(
+        "edit_doc.html",
+        {
+            "request": request,
+            "docs_tree": docs_tree,
+            "path": normalized,
+            "content": content,
+            "breadcrumbs": breadcrumbs,
+            "info": info,
+        },
+    )
+
+
+@app.post("/docs/{path:path}/edit")
+async def update_doc(path: str, content: str = Form(...)):
+    normalized = _normalize_or_400(path)
+    docs_service.save_doc(normalized, content)
+    return RedirectResponse(url=f"/docs/{normalized}", status_code=303)
+
+
 @app.get("/docs/{path:path}", response_class=HTMLResponse)
 async def view_doc(path: str, request: Request):
     normalized = _normalize_or_400(path)
@@ -176,38 +208,6 @@ async def view_doc(path: str, request: Request):
             "breadcrumbs": breadcrumbs,
         },
     )
-
-
-@app.get("/docs/{path:path}/edit", response_class=HTMLResponse)
-async def edit_doc_form(path: str, request: Request):
-    normalized = _normalize_or_400(path)
-    if normalized != path:
-        return RedirectResponse(url=f"/docs/{normalized}/edit", status_code=307)
-    docs_tree = _get_docs_tree()
-    content = docs_service.read_doc(normalized)
-    breadcrumbs = build_breadcrumbs(normalized)
-    info = None
-    if content is None:
-        content = ""
-        info = "Документ не найден — файл будет создан после сохранения."
-    return templates.TemplateResponse(
-        "edit_doc.html",
-        {
-            "request": request,
-            "docs_tree": docs_tree,
-            "path": normalized,
-            "content": content,
-            "breadcrumbs": breadcrumbs,
-            "info": info,
-        },
-    )
-
-
-@app.post("/docs/{path:path}/edit")
-async def update_doc(path: str, content: str = Form(...)):
-    normalized = _normalize_or_400(path)
-    docs_service.save_doc(normalized, content)
-    return RedirectResponse(url=f"/docs/{normalized}", status_code=303)
 
 
 @app.post("/docs/{path:path}/delete")

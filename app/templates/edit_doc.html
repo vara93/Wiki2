@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Редактирование: {{ path }}</h3>
+<form action="/docs/{{ path }}/edit" method="post">
+    <div class="mb-3">
+        <label class="form-label">Содержимое (Markdown)</label>
+        <textarea class="form-control" name="content" rows="20">{{ content }}</textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+    <a class="btn btn-secondary" href="/docs/{{ path }}">Отмена</a>
+</form>
+{% endblock %}

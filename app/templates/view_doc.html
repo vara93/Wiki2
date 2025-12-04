@@ -14,7 +14,17 @@
             </form>
         </div>
     </div>
-    <article class="prose max-w-none prose-slate prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:bg-slate-100">
-        {{ html_content | safe }}
-    </article>
+
+    {% if html_content %}
+        <article class="prose max-w-none prose-slate prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:bg-slate-100">
+            {{ html_content | safe }}
+        </article>
+    {% else %}
+        <div class="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            {{ error or "Документ не найден" }}
+        </div>
+        <div class="mt-4">
+            <a href="/docs/{{ path }}/edit" class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Создать/открыть редактор</a>
+        </div>
+    {% endif %}
 {% endblock %}

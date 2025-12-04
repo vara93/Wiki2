@@ -56,6 +56,13 @@ def _get_docs_tree():
     return docs_service.list_docs_tree()
 
 
+def _normalize_or_400(path: str) -> str:
+    normalized = docs_service.normalize_path(path)
+    if not normalized:
+        raise HTTPException(status_code=400, detail="Invalid document path")
+    return normalized
+
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return await list_docs(request)
@@ -66,7 +73,13 @@ async def list_docs(request: Request):
     docs_tree = _get_docs_tree()
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "docs_tree": docs_tree, "breadcrumbs": build_breadcrumbs(None)},
+        {
+            "request": request,
+            "docs_tree": docs_tree,
+            "breadcrumbs": build_breadcrumbs(None),
+            "message": request.query_params.get("message"),
+            "error": request.query_params.get("error"),
+        },
     )
 
 
@@ -132,18 +145,33 @@ async def create_doc(
 
 @app.get("/docs/{path:path}", response_class=HTMLResponse)
 async def view_doc(path: str, request: Request):
+    normalized = _normalize_or_400(path)
+    if normalized != path:
+        return RedirectResponse(url=f"/docs/{normalized}", status_code=307)
     docs_tree = _get_docs_tree()
-    content = docs_service.read_doc(path)
+    content = docs_service.read_doc(normalized)
+    breadcrumbs = build_breadcrumbs(normalized)
     if content is None:
-        raise HTTPException(status_code=404, detail="Document not found")
+        return templates.TemplateResponse(
+            "view_doc.html",
+            {
+                "request": request,
+                "docs_tree": docs_tree,
+                "path": normalized,
+                "html_content": None,
+                "raw_content": None,
+                "breadcrumbs": breadcrumbs,
+                "error": "Документ не найден. Создайте новый или выберите другой.",
+            },
+            status_code=404,
+        )
     html_content = render_markdown_content(content)
-    breadcrumbs = build_breadcrumbs(path)
     return templates.TemplateResponse(
         "view_doc.html",
         {
             "request": request,
             "docs_tree": docs_tree,
-            "path": path,
+            "path": normalized,
             "html_content": html_content,
             "raw_content": content,
             "breadcrumbs": breadcrumbs,
@@ -153,17 +181,32 @@ async def view_doc(path: str, request: Request):
 
 @app.get("/docs/{path:path}/edit", response_class=HTMLResponse)
 async def edit_doc_form(path: str, request: Request):
+    normalized = _normalize_or_400(path)
+    if normalized != path:
+        return RedirectResponse(url=f"/docs/{normalized}/edit", status_code=307)
     docs_tree = _get_docs_tree()
-    content = docs_service.read_doc(path)
+    content = docs_service.read_doc(normalized)
     if content is None:
-        raise HTTPException(status_code=404, detail="Document not found")
-    breadcrumbs = build_breadcrumbs(path)
+        return templates.TemplateResponse(
+            "view_doc.html",
+            {
+                "request": request,
+                "docs_tree": docs_tree,
+                "path": normalized,
+                "html_content": None,
+                "raw_content": None,
+                "breadcrumbs": build_breadcrumbs(normalized),
+                "error": "Документ не найден. Создайте его через форму ниже.",
+            },
+            status_code=404,
+        )
+    breadcrumbs = build_breadcrumbs(normalized)
     return templates.TemplateResponse(
         "edit_doc.html",
         {
             "request": request,
             "docs_tree": docs_tree,
-            "path": path,
+            "path": normalized,
             "content": content,
             "breadcrumbs": breadcrumbs,
         },
@@ -172,20 +215,29 @@ async def edit_doc_form(path: str, request: Request):
 
 @app.post("/docs/{path:path}/edit")
 async def update_doc(path: str, content: str = Form(...)):
-    try:
-        docs_service.save_doc(path, content)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid document path")
-    return RedirectResponse(url=f"/docs/{path}", status_code=303)
+    normalized = _normalize_or_400(path)
+    docs_service.save_doc(normalized, content)
+    return RedirectResponse(url=f"/docs/{normalized}", status_code=303)
 
 
 @app.post("/docs/{path:path}/delete")
 async def remove_doc(path: str):
+    normalized = _normalize_or_400(path)
+    docs_service.delete_doc(normalized)
+    return RedirectResponse(url="/docs?message=Документ удален", status_code=303)
+
+
+@app.post("/folders/{path:path}/delete")
+async def remove_folder(path: str):
+    normalized = _normalize_or_400(path)
     try:
-        docs_service.delete_doc(path)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid document path")
-    return RedirectResponse(url="/docs", status_code=303)
+        docs_service.delete_dir(normalized)
+    except ValueError as exc:
+        return RedirectResponse(
+            url=f"/docs?error={exc}",
+            status_code=303,
+        )
+    return RedirectResponse(url="/docs?message=Папка удалена", status_code=303)
 
 
 @app.get("/search", response_class=HTMLResponse)

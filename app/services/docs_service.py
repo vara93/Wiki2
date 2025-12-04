@@ -33,7 +33,7 @@ def _safe_doc_path(path: str) -> Path:
 
 
 def list_docs_tree() -> Dict:
-    root: Dict = {"name": "root", "type": "dir", "children": []}
+    root: Dict = {"name": "root", "type": "dir", "path": "", "children": []}
     nodes = {"": root}
 
     for dirpath, dirnames, filenames in os.walk(DOCS_DIR):
@@ -45,7 +45,7 @@ def list_docs_tree() -> Dict:
 
         for dirname in dirnames:
             child_key = f"{key}/{dirname}" if key else dirname
-            node = {"name": dirname, "type": "dir", "children": []}
+            node = {"name": dirname, "type": "dir", "path": child_key, "children": []}
             nodes[child_key] = node
             current.setdefault("children", []).append(node)
 
@@ -74,7 +74,8 @@ def read_doc(path: str) -> Optional[str]:
 
 
 def save_doc(path: str, content: str) -> None:
-    file_path = _safe_doc_path(path)
+    normalized = normalize_path(path)
+    file_path = _safe_doc_path(normalized)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(content, encoding="utf-8")
 
@@ -83,6 +84,22 @@ def delete_doc(path: str) -> None:
     file_path = _safe_doc_path(path)
     if file_path.exists():
         file_path.unlink()
+        cleanup_empty_dirs(file_path.parent)
+
+
+def delete_dir(path: str) -> None:
+    normalized = normalize_path(path)
+    if normalized == "":
+        raise ValueError("Cannot delete root directory")
+    dir_path = (DOCS_DIR / normalized).resolve()
+    if not str(dir_path).startswith(str(DOCS_DIR.resolve())):
+        raise ValueError("Invalid directory path")
+    if dir_path.exists():
+        # only remove if empty to avoid destructive operations
+        if any(dir_path.iterdir()):
+            raise ValueError("Directory is not empty")
+        dir_path.rmdir()
+        cleanup_empty_dirs(dir_path.parent)
 
 
 def get_title_from_content(content: str, fallback: Optional[str] = None) -> str:
@@ -92,3 +109,17 @@ def get_title_from_content(content: str, fallback: Optional[str] = None) -> str:
             if title:
                 return title
     return fallback or "Untitled"
+
+
+def cleanup_empty_dirs(start: Path) -> None:
+    current = start
+    root = DOCS_DIR.resolve()
+    while current != root and current.is_dir():
+        try:
+            next_item = current.parent
+            if any(current.iterdir()):
+                break
+            current.rmdir()
+            current = next_item
+        except OSError:
+            break

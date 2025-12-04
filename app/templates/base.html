@@ -25,9 +25,12 @@
                     {% if child.type == 'dir' %}
                         <li>
                             <details class="group" open>
-                                <summary class="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
+                                <summary class="flex items-center justify-between gap-2 cursor-pointer text-slate-700 hover:text-slate-900">
                                     <span>📂</span>
-                                    <span class="font-semibold">{{ child.name }}</span>
+                                    <span class="font-semibold flex-1">{{ child.name }}</span>
+                                    <form action="/folders/{{ child.path }}/delete" method="post" class="inline-flex" onsubmit="return confirm('Удалить пустую папку?');">
+                                        <button type="submit" title="Удалить папку" class="hidden group-open:inline-flex items-center text-xs text-red-500 hover:text-red-600">🗑</button>
+                                    </form>
                                 </summary>
                                 <div class="mt-1">
                                     {{ render_tree(child) }}
@@ -102,6 +105,12 @@
             </aside>
 
             <section class="flex-1 bg-white border border-slate-200 rounded-lg shadow-sm p-6">
+                {% if message %}
+                    <div class="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ message }}</div>
+                {% endif %}
+                {% if error %}
+                    <div class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</div>
+                {% endif %}
                 {% block content %}{% endblock %}
             </section>
         </main>
@@ -143,7 +152,66 @@
             render();
         }
 
+        function setupToolbar(toolbarId, textareaId) {
+            const toolbar = document.getElementById(toolbarId);
+            const textarea = document.getElementById(textareaId);
+            if (!toolbar || !textarea) return;
+
+            function wrapSelection(prefix, suffix = prefix) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
+                const selected = value.substring(start, end) || 'текст';
+                const before = value.substring(0, start);
+                const after = value.substring(end);
+                textarea.value = `${before}${prefix}${selected}${suffix}${after}`;
+                textarea.focus();
+                textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+                textarea.dispatchEvent(new Event('input'));
+            }
+
+            toolbar.querySelectorAll('[data-action]')?.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const action = button.dataset.action;
+                    switch (action) {
+                        case 'bold':
+                            wrapSelection('**', '**');
+                            break;
+                        case 'italic':
+                            wrapSelection('*', '*');
+                            break;
+                        case 'code':
+                            wrapSelection('`', '`');
+                            break;
+                        case 'quote':
+                            wrapSelection('> ', '');
+                            break;
+                        case 'ul':
+                            wrapSelection('- ', '');
+                            break;
+                        case 'ol':
+                            wrapSelection('1. ', '');
+                            break;
+                        case 'link':
+                            wrapSelection('[', '](https://)');
+                            break;
+                        case 'image':
+                            wrapSelection('![описание](', ')');
+                            break;
+                        case 'h2':
+                            wrapSelection('## ', '');
+                            break;
+                        case 'h3':
+                            wrapSelection('### ', '');
+                            break;
+                    }
+                });
+            });
+        }
+
         window.attachPreview = attachPreview;
+        window.setupToolbar = setupToolbar;
     </script>
 </body>
 </html>

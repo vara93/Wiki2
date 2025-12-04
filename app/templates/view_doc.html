@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="flex flex-col gap-4">
-    {{ breadcrumbs(breadcrumbs) }}
+    {{ render_breadcrumbs(breadcrumbs) }}
     <div class="flex items-start justify-between gap-3">
         <div>
             <p class="text-sm text-slate-500">{{ path }}</p>

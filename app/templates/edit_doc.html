@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-start justify-between mb-4">
+        <div>
+            <p class="text-sm text-slate-500">Редактирование: <span class="font-mono text-slate-700">{{ path }}</span></p>
+            <h1 class="text-2xl font-semibold text-slate-900 mt-1">Редактор Markdown</h1>
+        </div>
+        <form action="/docs/{{ path }}/delete" method="post" onsubmit="return confirm('Удалить документ?');">
+            <button type="submit" class="px-3 py-2 text-sm rounded-md bg-red-600 text-white font-semibold hover:bg-red-700">Удалить</button>
+        </form>
+    </div>
+
+    <form action="/docs/{{ path }}/edit" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <label for="content" class="text-sm font-semibold text-slate-700">Markdown</label>
+                <div id="toolbar-edit" class="flex flex-wrap gap-1 text-sm">
+                    <button data-action="bold" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">B</button>
+                    <button data-action="italic" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200"><em>I</em></button>
+                    <button data-action="h2" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">H2</button>
+                    <button data-action="h3" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">H3</button>
+                    <button data-action="quote" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">""</button>
+                    <button data-action="ul" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">• Список</button>
+                    <button data-action="ol" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">1. Список</button>
+                    <button data-action="code" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">Code</button>
+                    <button data-action="link" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">Link</button>
+                    <button data-action="image" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">Img</button>
+                </div>
+            </div>
+            <textarea id="content" name="content" rows="18" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" required>{{ content }}</textarea>
+            <div class="flex gap-2">
+                <button type="submit" class="px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Сохранить</button>
+                <a href="/docs/{{ path }}" class="px-3 py-2 text-sm rounded-md bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200">Отмена</a>
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-semibold text-slate-700">Предпросмотр</p>
+                <p class="text-xs text-slate-500">Автообновление</p>
+            </div>
+            <div id="preview" class="min-h-[200px] rounded-md border border-slate-200 bg-slate-50 p-4 prose max-w-none prose-slate"></div>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            attachPreview('content', 'preview');
+            setupToolbar('toolbar-edit', 'content');
+        });
+    </script>
+{% endblock %}

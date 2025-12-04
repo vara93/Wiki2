@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="text-sm text-slate-500">Загрузка изображения</p>
+            <h1 class="text-2xl font-semibold text-slate-900 mt-1">Добавить файл</h1>
+        </div>
+    </div>
+
+    <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-3">
+        <label class="block text-sm font-semibold text-slate-700" for="file">Файл</label>
+        <input type="file" name="file" id="file" required class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+        <button type="submit" class="px-3 py-2 text-sm rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Загрузить</button>
+        <p class="text-xs text-slate-500">Файлы сохраняются в <code class="font-mono">/data/uploads</code>. Используйте путь <code class="font-mono">/uploads/&lt;filename&gt;</code> в Markdown.</p>
+    </form>
+
+    {% if url %}
+        <div class="mt-6 p-4 rounded-md border border-emerald-200 bg-emerald-50">
+            <p class="text-sm text-emerald-700">Файл загружен: <a class="text-emerald-800 font-semibold hover:underline" href="{{ url }}" target="_blank" rel="noreferrer">{{ filename }}</a></p>
+            <p class="text-sm text-slate-700 mt-2">Markdown:</p>
+            <div class="flex items-center gap-2 mt-1">
+                <pre class="flex-1 rounded-md bg-slate-900 text-slate-100 px-3 py-2 text-sm overflow-x-auto">![описание]({{ url }})</pre>
+                <button type="button" class="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200" onclick="navigator.clipboard.writeText('![описание]({{ url }})')">Копировать</button>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

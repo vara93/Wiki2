@@ -163,7 +163,6 @@ async def view_doc(path: str, request: Request):
                 "breadcrumbs": breadcrumbs,
                 "error": "Документ не найден. Создайте новый или выберите другой.",
             },
-            status_code=404,
         )
     html_content = render_markdown_content(content)
     return templates.TemplateResponse(

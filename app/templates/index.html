@@ -2,26 +2,59 @@
 
 {% block content %}
     {{ render_breadcrumbs(breadcrumbs) }}
-    <div class="flex flex-col gap-4">
-        <div>
-            <h1 class="text-2xl font-semibold text-slate-900">Добро пожаловать в Internal Wiki</h1>
-            <p class="text-slate-600 mt-2">Используйте дерево слева, чтобы открыть или создать документы, либо воспользуйтесь поиском.</p>
+    <div class="flex flex-col gap-6">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <p class="text-sm uppercase tracking-wide text-blue-700 font-semibold">Главная страница</p>
+                <h1 class="text-3xl font-bold text-slate-900 mt-1">Internal Wiki</h1>
+                <p class="text-slate-600 mt-2 max-w-2xl">Храните внутренние знания в Markdown, редактируйте их в удобном редакторе с предпросмотром и быстрым доступом к изображениям.</p>
+                <div class="flex gap-3 mt-4 flex-wrap">
+                    <a href="/docs/new" class="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold shadow hover:bg-blue-700">Создать документ</a>
+                    <a href="/upload" class="px-4 py-2 rounded-md bg-white text-slate-800 font-semibold border border-slate-200 hover:bg-slate-50">Загрузить картинку</a>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm text-slate-700 w-full md:w-auto">
+                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
+                    <p class="text-xs uppercase text-slate-500">Документы</p>
+                    <p class="text-xl font-bold text-slate-900">Markdown</p>
+                </div>
+                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
+                    <p class="text-xs uppercase text-slate-500">Предпросмотр</p>
+                    <p class="text-xl font-bold text-slate-900">Live</p>
+                </div>
+                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
+                    <p class="text-xs uppercase text-slate-500">Поиск</p>
+                    <p class="text-xl font-bold text-slate-900">Full-text</p>
+                </div>
+                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm">
+                    <p class="text-xs uppercase text-slate-500">Файлы</p>
+                    <p class="text-xl font-bold text-slate-900">Uploads</p>
+                </div>
+            </div>
         </div>
-        <div class="grid md:grid-cols-2 gap-4">
-            <div class="p-4 rounded-lg border border-slate-200 bg-slate-50">
+
+        <div class="grid lg:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
                 <h2 class="text-lg font-semibold text-slate-800">Быстрые действия</h2>
-                <ul class="mt-2 space-y-2 text-sm text-slate-700">
-                    <li>• Создайте новый документ через кнопку «Новый документ».</li>
-                    <li>• Загрузите изображения и вставляйте их в Markdown.</li>
-                    <li>• Используйте предпросмотр Markdown при редактировании.</li>
-                    <li>• Ищите по содержимому и заголовкам через поиск.</li>
+                <ul class="mt-1 space-y-2 text-sm text-slate-700">
+                    <li>• Открывайте дерево слева для навигации по разделам.</li>
+                    <li>• Создавайте черновики и сохраняйте их прямо из редактора.</li>
+                    <li>• Используйте панель форматирования для заголовков, списков и ссылок.</li>
+                    <li>• Вставляйте изображения из раздела «Загрузить картинку».</li>
                 </ul>
             </div>
-            <div class="p-4 rounded-lg border border-slate-200 bg-white">
-                <h2 class="text-lg font-semibold text-slate-800">Где лежат данные</h2>
-                <p class="text-sm text-slate-700 mt-2">Документы хранятся как <code>.md</code> файлы в <code>/data/docs</code>,
-                    загруженные изображения — в <code>/data/uploads</code>. Логический путь документа совпадает со структурой
-                    директорий (пример: <span class="font-mono">infra/mail/intro</span>).</p>
+            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
+                <h2 class="text-lg font-semibold text-slate-800">Поиск и структура</h2>
+                <p class="text-sm text-slate-700">Поиск проходит по именам файлов, заголовкам и тексту. Структура каталогов в <code>/data/docs</code> отображается как разделы.</p>
+                <p class="text-sm text-slate-700">Путь <span class="font-mono">infra/mail/intro</span> превратится в файл <span class="font-mono">/data/docs/infra/mail/intro.md</span>.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2">
+                <h2 class="text-lg font-semibold text-slate-800">Советы</h2>
+                <ul class="mt-1 space-y-2 text-sm text-slate-700">
+                    <li>• Используйте предпросмотр, чтобы проверить вёрстку перед сохранением.</li>
+                    <li>• Разбивайте документы по папкам, чтобы меню слева оставалось чистым.</li>
+                    <li>• Для кода применяйте блоки ``` и подсветку с highlight.js.</li>
+                </ul>
             </div>
         </div>
     </div>

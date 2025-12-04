@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col gap-4">
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-start justify-between">
+        <div>
+            <p class="text-sm text-slate-500">Поиск</p>
+            <h1 class="text-xl font-semibold text-slate-900">Результаты</h1>
+            <p class="text-sm text-slate-500 mt-1">{{ results | length }} найдено</p>
+        </div>
+        <form action="/search" method="get" class="flex items-center search-pill gap-2">
+            <input type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по названию и содержимому..." class="flex-1 bg-transparent focus:outline-none text-sm" />
+            <button type="submit" class="text-sm font-semibold text-slate-700 hover:text-slate-900">Искать</button>
+        </form>
+    </div>
+
+    <div class="space-y-3">
+        {% if results %}
+            {% for item in results %}
+                <article class="border border-slate-200 rounded-xl p-4 bg-white">
+                    <div class="flex items-center justify-between gap-3">
+                        <a href="/docs/{{ item.path }}" class="text-lg font-semibold text-slate-900 hover:text-slate-700">{{ item.title }}</a>
+                        <span class="text-xs text-slate-500">{{ item.path }}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">{{ item.snippet | safe }}</p>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="text-sm text-slate-500">Ничего не найдено. Попробуйте другой запрос.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

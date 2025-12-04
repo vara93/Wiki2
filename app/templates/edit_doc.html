@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col gap-4">
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex items-start justify-between">
+        <div>
+            <p class="text-sm text-slate-500">Редактирование</p>
+            <h1 class="text-xl font-semibold text-slate-900">{{ path }}</h1>
+            {% if info %}<p class="text-sm text-amber-600 mt-1">{{ info }}</p>{% endif %}
+        </div>
+        <div class="flex gap-2">
+            <a href="/docs/{{ path }}" class="action-link">↩ Вернуться</a>
+            <form action="/docs/{{ path }}/delete" method="post" onsubmit="return confirm('Удалить документ?');">
+                <button type="submit" class="action-link text-red-600">🗑 Удалить</button>
+            </form>
+        </div>
+    </div>
+
+    <form action="/docs/{{ path }}/edit" method="post" data-guard-unsaved="true" class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+            <div class="editor-toolbar flex flex-wrap items-center gap-2">
+                <select data-block-picker class="text-sm">
+                    <option>Блок</option>
+                    <option value="h2">Заголовок H2</option>
+                    <option value="h3">Заголовок H3</option>
+                    <option value="quote">Цитата</option>
+                    <option value="code">Код</option>
+                </select>
+                <button data-action="bold">B</button>
+                <button data-action="italic"><em>I</em></button>
+                <button data-action="strike"><s>S</s></button>
+                <button data-action="heading" data-level="2">H2</button>
+                <button data-action="heading" data-level="3">H3</button>
+                <button data-action="ul">• Список</button>
+                <button data-action="ol">1. Список</button>
+                <button data-action="quote">“” Цитата</button>
+                <button data-action="code">` Код`</button>
+                <button data-action="blockcode">``` Блок ```</button>
+                <button data-action="checklist">☑ Чеклист</button>
+                <button data-action="table">Таблица</button>
+                <button data-action="link">Ссылка</button>
+                <button data-action="image">Картинка</button>
+                <button data-action="hr">—</button>
+                <a href="/upload" class="toolbar-btn">⬆️ Медиа</a>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-slate-600">
+                <label class="flex items-center gap-2">
+                    <input id="auto-preview" type="checkbox" class="rounded border-slate-300" checked>
+                    Автообновление
+                </label>
+                <button id="refresh-preview" class="action-link">Обновить предпросмотр</button>
+                <button type="submit" class="action-link bg-slate-900 text-white border-slate-900">💾 Сохранить</button>
+            </div>
+        </div>
+
+        <div class="editor-grid">
+            <div>
+                <label for="content" class="sr-only">Markdown</label>
+                <textarea id="content" name="content" class="editor-input" required>{{ content }}</textarea>
+            </div>
+            <div class="preview-pane" id="preview"></div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.WikiUI) {
+            WikiUI.initToolbar('editor-toolbar', 'content');
+            WikiUI.initPreview({ textareaId: 'content', previewId: 'preview', autoCheckboxId: 'auto-preview', refreshButtonId: 'refresh-preview' });
+        }
+    });
+</script>
+{% endblock %}

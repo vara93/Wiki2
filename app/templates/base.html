@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Wiki</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='wiki.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body class="page-body" data-current-path="{{ path | default('') }}">
+    {% macro render_breadcrumbs(items) %}
+        {% if items %}
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                {% for crumb in items %}
+                    {% if not loop.first %}<span class="breadcrumbs-sep">/</span>{% endif %}
+                    {% if loop.last %}
+                        <span class="breadcrumbs-current">{{ crumb.name }}</span>
+                    {% else %}
+                        <a href="{{ crumb.url }}" class="breadcrumbs-link">{{ crumb.name }}</a>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+        {% endif %}
+    {% endmacro %}
+
+    {% macro render_tree(node, level=0) %}
+        {% if node.children %}
+            <ul class="doc-tree" role="tree">
+                {% for child in node.children %}
+                    {% if child.type == 'dir' %}
+                        <li data-tree-node role="treeitem" aria-expanded="false">
+                            <div class="tree-row">
+                                <button type="button" data-tree-toggle aria-expanded="false" class="tree-toggle">
+                                    <span data-icon class="tree-caret">▸</span>
+                                    <span class="tree-icon">📁</span>
+                                    <span class="tree-label">{{ child.name }}</span>
+                                </button>
+                                <form action="/folders/{{ child.path }}/delete" method="post" class="ml-auto" onsubmit="return confirm('Удалить папку со всем содержимым?');">
+                                    <button type="submit" class="tree-delete">Удалить</button>
+                                </form>
+                            </div>
+                            <div class="tree-children hidden" data-tree-children>
+                                {{ render_tree(child, level + 1) }}
+                            </div>
+                        </li>
+                    {% else %}
+                        <li data-tree-node role="treeitem">
+                            <a data-tree-link data-path="{{ child.path }}" href="/docs/{{ child.path }}" class="tree-link">
+                                <span class="tree-icon text-muted">📄</span>
+                                <span class="truncate">{{ child.name }}</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-sm text-muted">Документов пока нет.</p>
+        {% endif %}
+    {% endmacro %}
+
+    <div class="gradient-layer"></div>
+    <header class="topbar">
+        <div class="shell topbar-inner">
+            <div class="brand">
+                <div class="brand-mark">IW</div>
+                <div>
+                    <p class="brand-title">Internal Wiki</p>
+                    <p class="brand-sub">Корпоративная база знаний</p>
+                </div>
+            </div>
+            <div class="badge-row">
+                <span class="tag">Markdown</span>
+                <span class="tag">FastAPI</span>
+                <span class="tag">Tailwind</span>
+                <button class="profile-btn" type="button" title="Меню">⋯</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="shell layout">
+        <aside class="sidebar">
+            <div class="sidebar-body">
+                <a href="/docs" class="nav-home">🏠 Главная</a>
+                <a href="/docs/new" class="btn btn-primary">➕ Новый документ</a>
+                <a href="/upload" class="btn btn-ghost">⬆️ Загрузить изображение</a>
+
+                <form action="/search" method="get" class="search-box">
+                    <label class="sr-only" for="search">Поиск</label>
+                    <div class="search-inner">
+                        <span class="search-icon">🔍</span>
+                        <input id="search" type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по заголовку и содержимому..." class="search-input" />
+                        <button type="submit" class="search-btn">Искать</button>
+                    </div>
+                </form>
+
+                <div class="tree-wrap">
+                    <div class="tree-head">Документы</div>
+                    {{ render_tree(docs_tree) }}
+                </div>
+            </div>
+        </aside>
+
+        <section class="content">
+            <div class="content-card">
+                {% if message %}<div class="notice success">{{ message }}</div>{% endif %}
+                {% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', path='wiki.js') }}" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) { hljs.highlightAll(); }
+            if (window.WikiUI) {
+                WikiUI.initTreeNavigation();
+                WikiUI.initCodeCopy();
+                WikiUI.initCopyButtons();
+                WikiUI.initUnsavedGuard();
+                WikiUI.initUploadDrop();
+            }
+        });
+    </script>
+    {% block page_scripts %}{% endblock %}
+</body>
+</html>

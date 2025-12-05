@@ -1,5 +1,5 @@
 (function () {
-  const debounce = (fn, delay = 250) => {
+  const debounce = (fn, delay = 300) => {
     let timer;
     return (...args) => {
       clearTimeout(timer);
@@ -24,7 +24,8 @@
 
   const initCodeCopy = () => {
     document.querySelectorAll('pre code').forEach((block) => {
-      if (block.parentElement.querySelector('.code-copy')) return;
+      const wrapper = block.parentElement;
+      if (wrapper.querySelector('.code-copy')) return;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'code-copy';
@@ -39,12 +40,31 @@
           setTimeout(() => (button.textContent = 'Copy'), 1200);
         }
       });
-      block.parentElement.appendChild(button);
+      wrapper.appendChild(button);
+    });
+  };
+
+  const initCopyButtons = () => {
+    document.querySelectorAll('[data-copy-from]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const target = document.getElementById(btn.dataset.copyFrom);
+        if (!target) return;
+        const text = target.textContent.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.textContent = 'Copied';
+          setTimeout(() => (btn.textContent = 'Copy'), 1000);
+        } catch (e) {
+          btn.textContent = 'Error';
+          setTimeout(() => (btn.textContent = 'Copy'), 1000);
+        }
+      });
     });
   };
 
   const initTreeNavigation = () => {
     const currentPath = document.body?.dataset?.currentPath || '';
+
     document.querySelectorAll('[data-tree-link]').forEach((link) => {
       if (currentPath && link.dataset.path === currentPath) {
         link.classList.add('is-active');
@@ -107,7 +127,6 @@
     const actions = {
       bold: () => wrapSelection('**', '**'),
       italic: () => wrapSelection('*', '*'),
-      strike: () => wrapSelection('~~', '~~'),
       code: () => wrapSelection('`', '`'),
       blockcode: () => wrapSelection('\n```\n', '\n```\n'),
       quote: () => insertLine('> ', 'цитата'),
@@ -115,10 +134,7 @@
       ol: () => insertLine('1. ', 'элемент списка'),
       link: () => wrapSelection('[', '](https://example.com)'),
       image: () => wrapSelection('![описание](', ')'),
-      table: () => wrapSelection('\n| Столбец 1 | Столбец 2 |\n| --- | --- |\n| Значение | Значение |\n\n', ''),
       heading: (level) => insertLine('#'.repeat(level) + ' ', `Заголовок ${level}`),
-      checklist: () => insertLine('- [ ] ', 'задача'),
-      hr: () => insertLine('\n---\n', ''),
     };
 
     toolbar.querySelectorAll('[data-action]').forEach((button) => {
@@ -134,19 +150,6 @@
         if (fn) fn();
       });
     });
-
-    const blockSelect = toolbar.querySelector('select[data-block-picker]');
-    if (blockSelect) {
-      blockSelect.addEventListener('change', () => {
-        const val = blockSelect.value;
-        if (val === 'p') insertLine('', '');
-        if (val === 'h2') actions.heading(2);
-        if (val === 'h3') actions.heading(3);
-        if (val === 'quote') actions.quote();
-        if (val === 'code') actions.blockcode();
-        blockSelect.selectedIndex = 0;
-      });
-    }
   };
 
   const initPreview = ({ textareaId, previewId, autoCheckboxId, refreshButtonId }) => {
@@ -165,19 +168,14 @@
       initCodeCopy();
     };
 
-    const debounced = debounce(update, 300);
+    const debounced = debounce(update, 350);
     const handler = () => {
       if (!autoToggle || autoToggle.checked) debounced();
     };
 
     textarea.addEventListener('input', handler);
-    if (autoToggle) autoToggle.addEventListener('change', () => {
-      if (autoToggle.checked) update();
-    });
-    if (refreshBtn) refreshBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      update();
-    });
+    if (autoToggle) autoToggle.addEventListener('change', () => { if (autoToggle.checked) update(); });
+    if (refreshBtn) refreshBtn.addEventListener('click', (e) => { e.preventDefault(); update(); });
     update();
   };
 
@@ -201,66 +199,42 @@
       e.preventDefault();
       e.returnValue = '';
     });
-
-    document.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href') || '';
-        if (!dirty || link.target === '_blank' || href.startsWith('#')) return;
-        if (confirm('Есть несохраненные изменения. Перейти без сохранения?')) {
-          dirty = false;
-          return;
-        }
-        e.preventDefault();
-      });
-    });
-  };
-
-  const initCopyButtons = () => {
-    document.querySelectorAll('[data-copy-target]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const target = document.querySelector(btn.dataset.copyTarget);
-        if (!target) return;
-        const text = target.innerText.trim();
-        navigator.clipboard.writeText(text).then(() => {
-          btn.textContent = 'Скопировано';
-          setTimeout(() => (btn.textContent = 'Copy'), 1200);
-        });
-      });
-    });
   };
 
   const initUploadDrop = () => {
-    const dropZone = document.querySelector('[data-dropzone]');
-    const fileInput = document.querySelector('[data-drop-input]');
-    if (!dropZone || !fileInput) return;
+    const drop = document.getElementById('upload-drop');
+    const fileInput = document.getElementById('file');
+    if (!drop || !fileInput) return;
 
-    const preventDefaults = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-      dropZone.addEventListener(eventName, preventDefaults, false);
+    ['dragenter', 'dragover'].forEach((evt) => {
+      drop.addEventListener(evt, (e) => {
+        e.preventDefault();
+        drop.classList.add('ring-2', 'ring-blue-500');
+      });
     });
 
-    dropZone.addEventListener('dragover', () => dropZone.classList.add('ring-2', 'ring-blue-400'));
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('ring-2', 'ring-blue-400'));
-    dropZone.addEventListener('drop', (e) => {
-      dropZone.classList.remove('ring-2', 'ring-blue-400');
-      if (e.dataTransfer.files.length) {
-        fileInput.files = e.dataTransfer.files;
-      }
+    ['dragleave', 'drop'].forEach((evt) => {
+      drop.addEventListener(evt, (e) => {
+        e.preventDefault();
+        drop.classList.remove('ring-2', 'ring-blue-500');
+      });
     });
+
+    drop.addEventListener('drop', (e) => {
+      if (!e.dataTransfer?.files?.length) return;
+      fileInput.files = e.dataTransfer.files;
+    });
+
+    drop.addEventListener('click', () => fileInput.click());
   };
 
   window.WikiUI = {
-    debounce,
-    initCodeCopy,
     initTreeNavigation,
+    initCodeCopy,
+    initCopyButtons,
     initToolbar,
     initPreview,
     initUnsavedGuard,
-    initCopyButtons,
     initUploadDrop,
   };
 })();

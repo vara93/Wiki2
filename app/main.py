@@ -63,6 +63,26 @@ def _normalize_or_400(path: str) -> str:
     return normalized
 
 
+def _collect_directories(tree: dict) -> list[str]:
+    dirs: list[str] = []
+
+    def walk(node: dict):
+        if node.get("type") == "dir":
+            dirs.append(node.get("path", ""))
+            for child in node.get("children", []):
+                walk(child)
+
+    walk(tree)
+    seen = set()
+    ordered: list[str] = []
+    for item in dirs:
+        if item not in seen:
+            ordered.append(item)
+            seen.add(item)
+    ordered.sort(key=lambda x: (x != "", x))
+    return ordered
+
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return await list_docs(request)
@@ -86,6 +106,7 @@ async def list_docs(request: Request):
 @app.get("/docs/new", response_class=HTMLResponse)
 async def new_doc_form(request: Request, error: Optional[str] = None):
     docs_tree = _get_docs_tree()
+    folder_options = _collect_directories(docs_tree)
     return templates.TemplateResponse(
         "new_doc.html",
         {
@@ -93,6 +114,7 @@ async def new_doc_form(request: Request, error: Optional[str] = None):
             "docs_tree": docs_tree,
             "error": error,
             "breadcrumbs": build_breadcrumbs(None),
+            "folder_options": folder_options,
         },
     )
 
@@ -107,6 +129,7 @@ async def create_doc(
     normalized_path = docs_service.normalize_path(path)
     if not normalized_path:
         docs_tree = _get_docs_tree()
+        folder_options = _collect_directories(docs_tree)
         return templates.TemplateResponse(
             "new_doc.html",
             {
@@ -117,12 +140,14 @@ async def create_doc(
                 "content": content,
                 "title_value": title,
                 "breadcrumbs": build_breadcrumbs(None),
+                "folder_options": folder_options,
             },
             status_code=400,
         )
     existing = docs_service.read_doc(normalized_path)
     if existing is not None:
         docs_tree = _get_docs_tree()
+        folder_options = _collect_directories(docs_tree)
         return templates.TemplateResponse(
             "new_doc.html",
             {
@@ -133,6 +158,7 @@ async def create_doc(
                 "content": content,
                 "title_value": title,
                 "breadcrumbs": build_breadcrumbs(None),
+                "folder_options": folder_options,
             },
             status_code=400,
         )
@@ -233,6 +259,18 @@ async def remove_folder(path: str):
     return RedirectResponse(url="/docs?message=Папка удалена", status_code=303)
 
 
+@app.post("/folders/create")
+async def create_folder(path: str = Form("")):
+    normalized = docs_service.normalize_path(path)
+    if not normalized:
+        return RedirectResponse(url="/docs?error=Укажите имя папки", status_code=303)
+    try:
+        docs_service.create_dir(normalized)
+    except ValueError as exc:
+        return RedirectResponse(url=f"/docs?error={exc}", status_code=303)
+    return RedirectResponse(url="/docs?message=Папка создана", status_code=303)
+
+
 @app.get("/search", response_class=HTMLResponse)
 async def search_docs(request: Request, query: str = ""):
     docs_tree = _get_docs_tree()
@@ -269,6 +307,9 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     docs_tree = _get_docs_tree()
     url = upload_service.save_upload(file)
     filename = Path(url).name
+    accept_header = request.headers.get("accept", "")
+    if "application/json" in accept_header:
+        return JSONResponse({"url": url, "filename": filename})
     return templates.TemplateResponse(
         "upload_image.html",
         {

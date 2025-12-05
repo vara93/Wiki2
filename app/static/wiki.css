@@ -72,6 +72,13 @@ body.page-body {
 .search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 14px; color: var(--text); padding: 6px 4px; }
 .search-btn { border: none; border-radius: 10px; padding: 8px 12px; background: var(--accent); color: #fff; font-weight: 600; white-space: nowrap; }
 
+.folder-create { background: #f8fafc; border: 1px solid var(--border); border-radius: 14px; padding: 10px; }
+.folder-label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+.folder-inner { display: flex; gap: 8px; }
+.folder-input { flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; background: #fff; }
+.folder-btn { border: 1px solid var(--border); background: #fff; border-radius: 10px; padding: 8px 12px; font-weight: 600; color: var(--accent-strong); }
+.folder-hint { margin-top: 6px; font-size: 12px; color: var(--muted); }
+
 .tree-wrap { flex: 1; overflow-y: auto; padding-right: 4px; }
 .tree-head { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
 .doc-tree { list-style: none; padding: 0; margin: 0; }
@@ -122,9 +129,11 @@ body.page-body {
 .toolbar .divider { width: 1px; background: var(--border); align-self: stretch; }
 
 .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-.editor-pane, .preview-pane { border: 1px solid var(--border); border-radius: 16px; background: #fff; padding: 12px; min-height: 70vh; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7); }
-.editor-textarea { width: 100%; height: 100%; min-height: 68vh; border: none; outline: none; resize: vertical; background: #f9fafb; border-radius: 12px; padding: 14px; font-family: 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 14px; line-height: 1.6; color: var(--text); border: 1px solid var(--border); }
+.editor-pane { border: 1px solid var(--border); border-radius: 16px; background: #fff; padding: 12px; min-height: 60vh; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7); }
+.editor-textarea { width: 100%; height: 100%; min-height: 60vh; border: none; outline: none; resize: vertical; background: #f9fafb; border-radius: 12px; padding: 14px; font-family: 'Fira Code', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 14px; line-height: 1.6; color: var(--text); border: 1px solid var(--border); }
 .preview-pane article { max-height: 70vh; overflow: auto; padding-right: 6px; }
+.preview-stack { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+.preview-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
 
 .form-field { display: flex; flex-direction: column; gap: 6px; }
 .form-label { font-size: 13px; color: var(--muted); }

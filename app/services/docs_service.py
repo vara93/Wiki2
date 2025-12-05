@@ -100,6 +100,17 @@ def delete_dir(path: str) -> None:
         cleanup_empty_dirs(dir_path.parent)
 
 
+def create_dir(path: str) -> Path:
+    normalized = normalize_path(path)
+    if normalized == "":
+        raise ValueError("Название папки не может быть пустым")
+    dir_path = (DOCS_DIR / normalized).resolve()
+    if not str(dir_path).startswith(str(DOCS_DIR.resolve())):
+        raise ValueError("Invalid directory path")
+    dir_path.mkdir(parents=True, exist_ok=True)
+    return dir_path
+
+
 def get_title_from_content(content: str, fallback: Optional[str] = None) -> str:
     for line in content.splitlines():
         if line.lstrip().startswith("#"):

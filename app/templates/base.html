@@ -94,8 +94,17 @@
                     <div class="search-inner">
                         <span class="search-icon">🔍</span>
                         <input id="search" type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по заголовку и содержимому..." class="search-input" />
-                        <button type="submit" class="search-btn">Искать</button>
+                        <button type="submit" class="search-btn">Поиск</button>
                     </div>
+                </form>
+
+                <form action="/folders/create" method="post" class="folder-create" onsubmit="return this.folderpath.value.trim().length > 0;">
+                    <label class="folder-label" for="folderpath">Создать папку</label>
+                    <div class="folder-inner">
+                        <input id="folderpath" name="path" type="text" placeholder="infra/mail" class="folder-input" required>
+                        <button type="submit" class="folder-btn">Создать</button>
+                    </div>
+                    <p class="folder-hint">Папки создаются только здесь. Используйте существующие при создании документов.</p>
                 </form>
 
                 <div class="tree-wrap">

@@ -11,13 +11,31 @@
 
     {% if error %}<div class="notice error">{{ error }}</div>{% endif %}
 
-    <form action="/docs/new" method="post" class="space-y-4" data-guard-unsaved="true">
+    {% set full_path = path_value or '' %}
+    {% set folder_selected = full_path.rsplit('/', 1)[0] if '/' in full_path else '' %}
+    {% set name_value = full_path.rsplit('/', 1)[1] if '/' in full_path else full_path %}
+
+    <form action="/docs/new" method="post" class="space-y-4" data-guard-unsaved="true" data-path-builder="true">
+        <input type="hidden" name="path" id="path" value="{{ full_path }}">
         <div class="grid md:grid-cols-2 gap-4">
             <label class="form-field">
-                <span class="form-label">Путь</span>
-                <input type="text" name="path" value="{{ path_value | default('') }}" placeholder="infra/mail/intro" class="form-input" required>
+                <span class="form-label">Папка</span>
+                <select id="folder-select" class="form-input" aria-label="Папка">
+                    <option value="" {% if folder_selected == '' %}selected{% endif %}>/ (корень)</option>
+                    {% for folder in folder_options or [] %}
+                        {% if folder %}
+                        <option value="{{ folder }}" {% if folder == folder_selected %}selected{% endif %}>/{{ folder }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <p class="form-hint">Создавать новые папки можно только в колонке «Документы».</p>
             </label>
             <label class="form-field">
+                <span class="form-label">Имя файла</span>
+                <input type="text" id="doc-name" value="{{ name_value }}" placeholder="intro" class="form-input" required>
+                <p class="form-hint">Только имя файла, без расширения.</p>
+            </label>
+            <label class="form-field md:col-span-2">
                 <span class="form-label">Заголовок (опционально)</span>
                 <input type="text" name="title" value="{{ title_value | default('') }}" placeholder="Например, Введение" class="form-input">
             </label>
@@ -41,29 +59,29 @@
                 <button type="button" data-action="link">🔗 Ссылка</button>
                 <button type="button" data-action="image">🖼 Картинка</button>
             </div>
-            <div class="editor-grid">
-                <div class="editor-pane">
-                    <textarea id="new-content" name="content" class="editor-textarea" minlength="0">{{ content | default('') }}</textarea>
-                </div>
-                <div class="preview-pane">
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-sm font-medium text-slate-700">Предпросмотр</p>
-                        <div class="flex items-center gap-3 text-sm">
-                            <label class="flex items-center gap-2 text-slate-600">
-                                <input type="checkbox" id="new-preview-auto" class="accent-blue-600" checked>
-                                Автообновление
-                            </label>
-                            <button id="new-preview-refresh" class="btn btn-ghost" type="button">Обновить</button>
-                        </div>
-                    </div>
-                    <article id="new-preview" class="markdown-body"></article>
-                </div>
+            <div class="editor-pane mt-3">
+                <textarea id="new-content" name="content" class="editor-textarea" minlength="0">{{ content | default('') }}</textarea>
             </div>
         </div>
 
-        <div class="flex gap-3 pt-2">
+        <div class="uploader" data-upload-target="new-content">
+            <label class="uploader-label" for="new-upload">Добавить изображение</label>
+            <div class="uploader-row">
+                <input type="file" id="new-upload" class="uploader-input" accept="image/*">
+                <button type="button" class="btn btn-ghost" data-upload-btn>Загрузить и вставить</button>
+            </div>
+            <p class="uploader-hint">Файл загрузится в /uploads и будет вставлен в документ как Markdown-ссылка.</p>
+        </div>
+
+        <div class="flex gap-3 pt-2 items-center flex-wrap">
             <button type="submit" class="btn btn-primary">Создать</button>
             <a href="/docs" class="btn btn-ghost">Отмена</a>
+            <button id="new-preview-trigger" class="btn btn-outline" type="button">Предпросмотр</button>
+        </div>
+
+        <div id="new-preview-container" class="preview-stack hidden">
+            <p class="preview-title">Предпросмотр</p>
+            <article id="new-preview" class="markdown-body"></article>
         </div>
     </form>
 </div>
@@ -73,7 +91,9 @@
     document.addEventListener('DOMContentLoaded', () => {
         if (window.WikiUI) {
             WikiUI.initToolbar('new-toolbar', 'new-content');
-            WikiUI.initPreview({ textareaId: 'new-content', previewId: 'new-preview', autoCheckboxId: 'new-preview-auto', refreshButtonId: 'new-preview-refresh' });
+            WikiUI.initPreview({ textareaId: 'new-content', previewId: 'new-preview', previewContainerId: 'new-preview-container', triggerButtonId: 'new-preview-trigger', mode: 'manual' });
+            WikiUI.initPathBuilder({ folderSelectId: 'folder-select', nameInputId: 'doc-name', pathInputId: 'path' });
+            WikiUI.initImageUploaders();
         }
     });
 </script>

@@ -152,12 +152,14 @@
     });
   };
 
-  const initPreview = ({ textareaId, previewId, autoCheckboxId, refreshButtonId }) => {
+  const initPreview = ({ textareaId, previewId, previewContainerId, triggerButtonId, autoCheckboxId, refreshButtonId, mode = 'auto' }) => {
     const textarea = document.getElementById(textareaId);
     const preview = document.getElementById(previewId);
     if (!textarea || !preview) return;
     const autoToggle = autoCheckboxId ? document.getElementById(autoCheckboxId) : null;
     const refreshBtn = refreshButtonId ? document.getElementById(refreshButtonId) : null;
+    const triggerBtn = triggerButtonId ? document.getElementById(triggerButtonId) : null;
+    const container = previewContainerId ? document.getElementById(previewContainerId) : null;
 
     const update = async () => {
       const html = await renderMarkdown(textarea.value);
@@ -168,15 +170,22 @@
       initCodeCopy();
     };
 
-    const debounced = debounce(update, 350);
-    const handler = () => {
-      if (!autoToggle || autoToggle.checked) debounced();
-    };
-
-    textarea.addEventListener('input', handler);
-    if (autoToggle) autoToggle.addEventListener('change', () => { if (autoToggle.checked) update(); });
-    if (refreshBtn) refreshBtn.addEventListener('click', (e) => { e.preventDefault(); update(); });
-    update();
+    if (mode === 'manual') {
+      const showPreview = () => {
+        if (container) container.classList.remove('hidden');
+        update();
+      };
+      if (triggerBtn) triggerBtn.addEventListener('click', (e) => { e.preventDefault(); showPreview(); });
+    } else {
+      const debounced = debounce(update, 350);
+      const handler = () => {
+        if (!autoToggle || autoToggle.checked) debounced();
+      };
+      textarea.addEventListener('input', handler);
+      if (autoToggle) autoToggle.addEventListener('change', () => { if (autoToggle.checked) update(); });
+      if (refreshBtn) refreshBtn.addEventListener('click', (e) => { e.preventDefault(); update(); });
+      update();
+    }
   };
 
   const initUnsavedGuard = () => {
@@ -228,6 +237,83 @@
     drop.addEventListener('click', () => fileInput.click());
   };
 
+  const initPathBuilder = ({ folderSelectId, nameInputId, pathInputId }) => {
+    const folder = document.getElementById(folderSelectId);
+    const name = document.getElementById(nameInputId);
+    const hidden = document.getElementById(pathInputId);
+    if (!folder || !name || !hidden) return;
+
+    const rebuild = () => {
+      const folderValue = folder.value.trim();
+      const nameValue = name.value.trim();
+      const parts = [];
+      if (folderValue) parts.push(folderValue.replace(/^\/+|\/+$/g, ''));
+      if (nameValue) parts.push(nameValue.replace(/^\/+|\/+$/g, ''));
+      hidden.value = parts.filter(Boolean).join('/');
+    };
+
+    folder.addEventListener('change', rebuild);
+    name.addEventListener('input', rebuild);
+    rebuild();
+  };
+
+  const initImageUploaders = () => {
+    document.querySelectorAll('[data-upload-target]').forEach((block) => {
+      const textareaId = block.dataset.uploadTarget;
+      const textarea = document.getElementById(textareaId);
+      const input = block.querySelector('input[type="file"]');
+      const button = block.querySelector('[data-upload-btn]');
+      if (!textarea || !input || !button) return;
+
+      button.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!input.files || !input.files.length) {
+          button.textContent = 'Выберите файл';
+          setTimeout(() => (button.textContent = 'Загрузить и вставить'), 1200);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        button.disabled = true;
+        const original = button.textContent;
+        button.textContent = 'Загрузка...';
+
+        try {
+          const resp = await fetch('/upload', {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: formData,
+          });
+          if (!resp.ok) throw new Error('upload failed');
+          const data = await resp.json();
+          const url = data.url || (data.filename ? `/uploads/${data.filename}` : '');
+          if (url) {
+            const snippet = `![описание](${url})`;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = textarea.value;
+            textarea.value = `${value.slice(0, start)}${snippet}${value.slice(end)}`;
+            textarea.focus();
+            const caret = start + snippet.length;
+            textarea.setSelectionRange(caret, caret);
+            textarea.dispatchEvent(new Event('input'));
+            button.textContent = 'Вставлено';
+          } else {
+            button.textContent = 'Ошибка';
+          }
+        } catch (err) {
+          button.textContent = 'Ошибка';
+        } finally {
+          setTimeout(() => {
+            button.textContent = original;
+            button.disabled = false;
+          }, 1200);
+        }
+      });
+    });
+  };
+
   window.WikiUI = {
     initTreeNavigation,
     initCodeCopy,
@@ -236,5 +322,7 @@
     initPreview,
     initUnsavedGuard,
     initUploadDrop,
+    initPathBuilder,
+    initImageUploaders,
   };
 })();

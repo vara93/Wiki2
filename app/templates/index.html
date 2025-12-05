@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto flex flex-col gap-6">
+    <div class="rounded-lg border border-slate-200 bg-white/90 backdrop-blur-sm p-6 shadow-sm">
+        <p class="text-sm text-slate-500 mb-1">Главная</p>
+        <h1 class="text-2xl font-semibold text-slate-900 mb-2">Добро пожаловать в Internal Wiki</h1>
+        <p class="text-sm text-slate-600 leading-relaxed">Спокойное пространство для документов команды: структурированное дерево, удобный Markdown-редактор и быстрый поиск по содержимому.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="info-card">
+            <p class="font-semibold text-slate-900 mb-1">Навигация</p>
+            <p class="text-sm text-slate-600">Слева — дерево разделов и страниц. Кликните по разделу, чтобы раскрыть вложенные документы.</p>
+        </div>
+        <div class="info-card">
+            <p class="font-semibold text-slate-900 mb-1">Редактор</p>
+            <p class="text-sm text-slate-600">Моноширинный ввод, панель форматирования и предпросмотр помогают быстро готовить читабельный Markdown.</p>
+        </div>
+        <div class="info-card">
+            <p class="font-semibold text-slate-900 mb-1">Поиск и медиа</p>
+            <p class="text-sm text-slate-600">Ищите по заголовкам и тексту, загружайте изображения и вставляйте готовые Markdown-ссылки.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        <a href="/docs/new" class="btn-primary">Новый документ</a>
+        <a href="/upload" class="btn-secondary">Загрузить изображение</a>
+        <a href="/search" class="btn-secondary">Поиск</a>
+    </div>
+</div>
+{% endblock %}

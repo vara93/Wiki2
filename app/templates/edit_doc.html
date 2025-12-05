@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-5xl mx-auto flex flex-col gap-4">
+    {{ breadcrumb(breadcrumbs) }}
+    <div class="flex items-start justify-between flex-wrap gap-3">
+        <div>
+            <p class="text-sm text-slate-500">Редактирование</p>
+            <h1 class="text-xl font-semibold text-slate-900">{{ path }}</h1>
+            {% if info %}<p class="text-sm text-amber-600 mt-1">{{ info }}</p>{% endif %}
+        </div>
+        <div class="flex gap-2">
+            <a href="/docs/{{ path }}" class="btn-secondary">Просмотр</a>
+            <form action="/docs/{{ path }}/delete" method="post" onsubmit="return confirm('Удалить документ?');">
+                <button type="submit" class="btn-ghost text-red-600">Удалить</button>
+            </form>
+        </div>
+    </div>
+
+    <form action="/docs/{{ path }}/edit" method="post" data-guard-unsaved="true" class="flex flex-col gap-3">
+        <div class="editor-toolbar" id="editor-toolbar">
+            <div class="toolbar-group">
+                <button data-action="heading" data-level="1" type="button">H1</button>
+                <button data-action="heading" data-level="2" type="button">H2</button>
+                <button data-action="heading" data-level="3" type="button">H3</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="bold" type="button">B</button>
+                <button data-action="italic" type="button"><em>I</em></button>
+                <button data-action="strike" type="button"><s>S</s></button>
+                <button data-action="code" type="button">`</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="ul" type="button">•</button>
+                <button data-action="ol" type="button">1.</button>
+                <button data-action="checklist" type="button">☑</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="blockcode" type="button">{ }</button>
+                <button data-action="table" type="button">▦</button>
+                <button data-action="quote" type="button">❝❞</button>
+            </div>
+            <div class="toolbar-group">
+                <button data-action="link" type="button">🔗</button>
+                <button data-action="image" type="button">🖼</button>
+                <button data-action="hr" type="button">—</button>
+                <a href="/upload" class="toolbar-btn" title="Медиа">⬆️</a>
+            </div>
+            <div class="toolbar-group ml-auto gap-3 items-center">
+                <label class="inline-flex items-center gap-2 text-sm text-slate-600">
+                    <input id="auto-preview" type="checkbox" class="rounded border-slate-300" checked>
+                    Автообновление
+                </label>
+                <button id="refresh-preview" type="button" class="btn-ghost px-3 py-2">Обновить</button>
+                <button type="submit" class="btn-primary">Сохранить</button>
+            </div>
+        </div>
+
+        <div class="editor-grid">
+            <div class="flex flex-col gap-2">
+                <label for="content" class="text-xs text-slate-500">Markdown</label>
+                <textarea id="content" name="content" class="editor-input" required>{{ content }}</textarea>
+            </div>
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>Предпросмотр</span>
+                    <span class="text-slate-400">Рендер Markdown</span>
+                </div>
+                <div class="preview-pane" id="preview"></div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.WikiUI) {
+            WikiUI.initToolbar('editor-toolbar', 'content');
+            WikiUI.initPreview({ textareaId: 'content', previewId: 'preview', autoCheckboxId: 'auto-preview', refreshButtonId: 'refresh-preview' });
+        }
+    });
+</script>
+{% endblock %}

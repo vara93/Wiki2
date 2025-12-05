@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto flex flex-col gap-4">
+    {{ breadcrumb(breadcrumbs) }}
+    <div class="flex items-start justify-between flex-wrap gap-3">
+        <div>
+            <p class="text-sm text-slate-500">Поиск</p>
+            <h1 class="text-xl font-semibold text-slate-900">Результаты по запросу: «{{ query }}»</h1>
+            <p class="text-sm text-slate-500 mt-1">Найдено: {{ results | length }}</p>
+        </div>
+        <form action="/search" method="get" class="w-full max-w-md">
+            <div class="search-inner">
+                <input type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по заголовку и содержимому..." class="search-input" />
+                <button type="submit" class="search-btn">Искать</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="space-y-3">
+        {% if results %}
+            {% for item in results %}
+                <article class="result-card">
+                    <div class="flex items-center justify-between gap-3">
+                        <a href="/docs/{{ item.path }}" class="result-title">{{ item.title }}</a>
+                        <span class="result-path">{{ item.path }}</span>
+                    </div>
+                    <p class="result-snippet">{{ item.snippet | safe }}</p>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="text-sm text-slate-500">Ничего не найдено. Попробуйте другой запрос.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="space-y-4">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+            <p class="text-sm text-slate-500">Медиа</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Загрузка изображения</h1>
+        </div>
+    </div>
+
+    <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-3">
+        <div class="dropzone" id="upload-drop">
+            <input type="file" name="file" id="file" class="hidden" required>
+            <label for="file" class="drop-content">
+                <span class="text-3xl">🖼</span>
+                <p class="text-base font-medium text-slate-800">Перетащите файл сюда или нажмите, чтобы выбрать</p>
+                <p class="text-sm text-slate-500">Поддерживаются обычные изображения. Имя файла будет сгенерировано автоматически.</p>
+            </label>
+        </div>
+        <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary">Загрузить</button>
+            <a href="/docs" class="btn btn-ghost">Отмена</a>
+        </div>
+    </form>
+
+    {% if filename %}
+    <div class="space-y-3">
+        <div class="preview-card">
+            <p class="text-sm text-slate-500">Результат</p>
+            <p class="text-base font-semibold text-slate-900">{{ filename }}</p>
+            <p class="text-sm text-slate-500">URL: {{ url }}</p>
+            <div class="mt-2">
+                <img src="{{ url }}" alt="upload preview" class="max-h-64 rounded-lg border border-slate-200 object-contain">
+            </div>
+        </div>
+        <div class="code-copy-block" data-copy-target="markdown-snippet">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-slate-700">Markdown</p>
+                <button type="button" class="btn btn-ghost btn-copy" data-copy-from="markdown-snippet">Copy</button>
+            </div>
+            <pre id="markdown-snippet"><code>![описание]({{ url }})</code></pre>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.WikiUI) {
+            WikiUI.initCopyButtons();
+            WikiUI.initUploadDrop();
+        }
+    });
+</script>
+{% endblock %}

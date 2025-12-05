@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+            <p class="text-sm text-slate-500">Добро пожаловать</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Internal Wiki</h1>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+        <div class="info-card">
+            <p class="info-title">Навигация</p>
+            <p class="info-text">Используйте дерево слева, чтобы быстро переходить между разделами. Папки можно сворачивать и развертывать.</p>
+        </div>
+        <div class="info-card">
+            <p class="info-title">Редактор</p>
+            <p class="info-text">Редактируйте Markdown, добавляйте заголовки, списки, цитаты и кодовые блоки. Предпросмотр помогает сверять форматирование.</p>
+        </div>
+        <div class="info-card">
+            <p class="info-title">Медиа</p>
+            <p class="info-text">Загружайте изображения на отдельной странице — сразу получите Markdown-ссылку для вставки в документы.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        <a href="/docs/new" class="btn btn-primary">Создать документ</a>
+        <a href="/search" class="btn btn-outline">Перейти к поиску</a>
+    </div>
+</div>
+{% endblock %}

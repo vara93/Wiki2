@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="space-y-4">
+    {{ render_breadcrumbs(breadcrumbs) }}
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <p class="text-sm text-slate-500">Создание документа</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Новый документ</h1>
+        </div>
+    </div>
+
+    {% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+
+    <form action="/docs/new" method="post" class="space-y-4" data-guard-unsaved="true">
+        <div class="grid md:grid-cols-2 gap-4">
+            <label class="form-field">
+                <span class="form-label">Путь</span>
+                <input type="text" name="path" value="{{ path_value | default('') }}" placeholder="infra/mail/intro" class="form-input" required>
+            </label>
+            <label class="form-field">
+                <span class="form-label">Заголовок (опционально)</span>
+                <input type="text" name="title" value="{{ title_value | default('') }}" placeholder="Например, Введение" class="form-input">
+            </label>
+        </div>
+
+        <div class="form-field">
+            <span class="form-label">Содержимое</span>
+            <div id="new-toolbar" class="toolbar">
+                <button type="button" data-action="heading" data-level="1">H1</button>
+                <button type="button" data-action="heading" data-level="2">H2</button>
+                <button type="button" data-action="heading" data-level="3">H3</button>
+                <span class="divider"></span>
+                <button type="button" data-action="bold"><strong>B</strong></button>
+                <button type="button" data-action="italic"><em>I</em></button>
+                <button type="button" data-action="code">`code`</button>
+                <button type="button" data-action="blockcode">```</button>
+                <span class="divider"></span>
+                <button type="button" data-action="ul">• Список</button>
+                <button type="button" data-action="ol">1. Список</button>
+                <button type="button" data-action="quote">❝ Цитата</button>
+                <button type="button" data-action="link">🔗 Ссылка</button>
+                <button type="button" data-action="image">🖼 Картинка</button>
+            </div>
+            <div class="editor-grid">
+                <div class="editor-pane">
+                    <textarea id="new-content" name="content" class="editor-textarea" minlength="0">{{ content | default('') }}</textarea>
+                </div>
+                <div class="preview-pane">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-slate-700">Предпросмотр</p>
+                        <div class="flex items-center gap-3 text-sm">
+                            <label class="flex items-center gap-2 text-slate-600">
+                                <input type="checkbox" id="new-preview-auto" class="accent-blue-600" checked>
+                                Автообновление
+                            </label>
+                            <button id="new-preview-refresh" class="btn btn-ghost" type="button">Обновить</button>
+                        </div>
+                    </div>
+                    <article id="new-preview" class="markdown-body"></article>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="btn btn-primary">Создать</button>
+            <a href="/docs" class="btn btn-ghost">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block page_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.WikiUI) {
+            WikiUI.initToolbar('new-toolbar', 'new-content');
+            WikiUI.initPreview({ textareaId: 'new-content', previewId: 'new-preview', autoCheckboxId: 'new-preview-auto', refreshButtonId: 'new-preview-refresh' });
+        }
+    });
+</script>
+{% endblock %}

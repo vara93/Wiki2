@@ -12,23 +12,25 @@
     <link rel="stylesheet" href="{{ url_for('static', path='wiki.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
-<body class="min-h-screen" data-current-path="{{ path | default('') }}">
-    {% macro render_breadcrumbs(items) %}
+<body class="min-h-screen bg-slate-100 text-slate-900" data-current-path="{{ path | default('') }}">
+    {% macro breadcrumb(items) %}
         {% if items %}
-            <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2" aria-label="Breadcrumb">
-                {% for crumb in items %}
-                    {% if not loop.first %}<span class="text-slate-400">/</span>{% endif %}
-                    {% if loop.last %}
-                        <span class="font-semibold text-slate-700">{{ crumb.name }}</span>
-                    {% else %}
-                        <a href="{{ crumb.url }}" class="hover:text-slate-900">{{ crumb.name }}</a>
-                    {% endif %}
-                {% endfor %}
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                <ol class="flex flex-wrap items-center gap-1 text-xs text-slate-500">
+                    {% for crumb in items %}
+                        {% if not loop.first %}<span class="text-slate-400">/</span>{% endif %}
+                        {% if loop.last %}
+                            <span class="font-semibold text-slate-700">{{ crumb.name }}</span>
+                        {% else %}
+                            <a href="{{ crumb.url }}" class="hover:text-slate-900">{{ crumb.name }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
             </nav>
         {% endif %}
     {% endmacro %}
 
-    {% macro render_tree(node, level=0) %}
+    {% macro doc_tree(node) %}
         {% if node.children %}
             <ul class="doc-tree" role="tree">
                 {% for child in node.children %}
@@ -45,7 +47,7 @@
                                 </form>
                             </div>
                             <div class="tree-children hidden" data-tree-children>
-                                {{ render_tree(child, level + 1) }}
+                                {{ doc_tree(child) }}
                             </div>
                         </li>
                     {% else %}
@@ -63,54 +65,52 @@
         {% endif %}
     {% endmacro %}
 
-    <div class="hero-gradient"></div>
-    <header class="header-bar">
-        <div class="app-shell top-row">
-            <div class="brand">
-                <div class="brand-mark">IW</div>
+    <header class="header-bar border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div class="wiki-shell px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold">IW</div>
                 <div>
-                    <p class="text-lg font-semibold leading-tight">Internal Wiki</p>
-                    <p class="text-xs text-white/80">Корпоративная база знаний</p>
+                    <p class="text-lg font-semibold">Internal Wiki</p>
+                    <p class="text-xs text-slate-500">Корпоративная база знаний</p>
                 </div>
             </div>
-            <div class="badges">
-                <span class="tag">Markdown</span>
-                <span class="tag">FastAPI</span>
-                <span class="tag">Tailwind</span>
-                <button class="profile-btn" type="button" title="Меню">⋯</button>
+            <div class="flex items-center gap-3 text-xs text-slate-500">
+                <span class="badge">Markdown</span>
+                <span class="badge">FastAPI</span>
+                <span class="badge">Tailwind</span>
+                <button class="avatar" type="button" title="Профиль">•••</button>
             </div>
         </div>
     </header>
 
-    <main class="app-shell layout">
-        <aside class="sidebar-card hidden lg:flex flex-col">
-            <a href="/docs" class="sidebar-logo">🏠 Главная</a>
-            <a href="/docs/new" class="btn btn-primary">➕ Новый документ</a>
-            <a href="/upload" class="btn btn-ghost">⬆️ Загрузить изображение</a>
-
+    <main class="wiki-shell px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
+        <aside class="sidebar-card w-64 flex-shrink-0 hidden lg:flex flex-col gap-4 p-4">
+            <nav class="flex flex-col gap-2">
+                <a href="/docs" class="nav-link {{ 'is-current' if not path else '' }}">🏠 Главная</a>
+                <a href="/docs/new" class="nav-link">➕ Новый документ</a>
+                <a href="/upload" class="nav-link">⬆️ Загрузить изображение</a>
+            </nav>
             <form action="/search" method="get" class="search-box">
                 <label class="sr-only" for="search">Поиск</label>
                 <div class="search-inner">
-                    <span class="text-slate-400">🔍</span>
                     <input id="search" type="text" name="query" value="{{ query | default('') }}" placeholder="Поиск по заголовку и содержимому..." class="search-input" />
                     <button type="submit" class="search-btn">Искать</button>
                 </div>
             </form>
-
-            <div class="flex-1 overflow-y-auto pr-1 mt-1">
-                <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
-                    <span class="uppercase tracking-wide">Документы</span>
-                </div>
-                {{ render_tree(docs_tree) }}
+            <div class="flex-1 overflow-y-auto pr-1">
+                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Документы</p>
+                {{ doc_tree(docs_tree) }}
             </div>
         </aside>
 
-        <section class="flex-1">
-            <div class="content-card">
-                {% if message %}<div class="notice success">{{ message }}</div>{% endif %}
-                {% if error %}<div class="notice error">{{ error }}</div>{% endif %}
-                {% block content %}{% endblock %}
-            </div>
+        <section class="flex-1 main-card p-6 shadow-sm">
+            {% if message %}
+                <div class="notice success">{{ message }}</div>
+            {% endif %}
+            {% if error %}
+                <div class="notice error">{{ error }}</div>
+            {% endif %}
+            {% block content %}{% endblock %}
         </section>
     </main>
 
@@ -121,9 +121,9 @@
             if (window.WikiUI) {
                 WikiUI.initTreeNavigation();
                 WikiUI.initCodeCopy();
-                WikiUI.initCopyButtons();
                 WikiUI.initUnsavedGuard();
                 WikiUI.initUploadDrop();
+                WikiUI.initCopyButtons();
             }
         });
     </script>
